@@ -9,7 +9,7 @@ interface Post {
   content: string;
   genre: string;
   date: string;
-  voiceCover: string; // Assuming voiceCover is a YouTube embed link
+  voiceCover: string;
 }
 
 const PostPage: React.FC = () => {

@@ -12,16 +12,17 @@ interface ModalProps {
   modalId: string;
   onSubmit: (data: ModalData) => void;
   title: string;
+  originalData: any;
 }
 
-const Modal: React.FC<ModalProps> = ({ modalId, onSubmit }) => {
+const Modal: React.FC<ModalProps> = ({ modalId, onSubmit, originalData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<ModalData>({
-    title: '',
-    content: '',
-    voiceCover: '',
-    genre: '',
-    date: '',
+    title: originalData ? originalData.title : '',
+    content: originalData ? originalData.content : '',
+    voiceCover: originalData ? originalData.voiceCover : '',
+    genre: originalData ? originalData.genre : '',
+    date: originalData ? originalData.date : '',
   });
 
   const toggleModal = () => {
@@ -35,6 +36,13 @@ const Modal: React.FC<ModalProps> = ({ modalId, onSubmit }) => {
     setFormData({
       ...formData,
       [name]: value,
+    });
+  };
+
+  const handleSelect = (e: any) => {
+    setFormData({
+      ...formData,
+      genre: e,
     });
   };
 
@@ -111,14 +119,19 @@ const Modal: React.FC<ModalProps> = ({ modalId, onSubmit }) => {
                 placeholder='Content...'
               />
 
-              <input
-                type='text'
+              <select
                 name='genre'
                 value={formData.genre}
-                onChange={handleInputChange}
-                placeholder='Genre'
+                onChange={(e: any) => handleSelect(e.target.value)}
                 className='w-full outline-none border-none'
-              />
+              >
+                <option value='' disabled>
+                  Odaberi žanr
+                </option>
+                <option value='narodne'>Narodna</option>
+                <option value='pop'>Pop</option>
+                <option value='moderne'>Moderna</option>
+              </select>
 
               <input
                 type='date'

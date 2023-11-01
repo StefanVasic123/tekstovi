@@ -4,6 +4,38 @@ import Layout from './components/layout';
 import Link from 'next/link';
 import YouTube from 'react-youtube';
 
+const GrayHeartIcon = () => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    width='18'
+    height='18'
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='gray' // Change the color to gray
+    strokeWidth='2'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+  >
+    <path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' />
+  </svg>
+);
+
+const BlueHeartIcon = () => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    width='18'
+    height='18'
+    viewBox='0 0 24 24'
+    fill='blue'
+    stroke='blue'
+    strokeWidth='2'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+  >
+    <path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' />
+  </svg>
+);
+
 interface Post {
   id: string;
   title: string;
@@ -22,6 +54,11 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(-1);
   const [postStates, setPostStates] = useState<boolean[]>([]);
   const [postIndex, setPostIndex] = useState(-1);
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [favoriteItems, setFavoriteItems] = useState();
+
+  // Define a key for localStorage
+  const localStorageKey = 'favoriteItems';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,8 +73,21 @@ export default function Home() {
       }
     };
 
+    const storedItems = localStorage.getItem(localStorageKey);
+    setFavoriteItems(storedItems ? JSON.parse(storedItems) : []);
+
     fetchData();
   }, []);
+  let filteredPosts;
+
+  // Filter items based on the selected genre
+  if (selectedGenre === 'omiljene') {
+    filteredPosts = posts.filter((item) => favoriteItems.includes(item.id));
+  } else {
+    filteredPosts = selectedGenre
+      ? posts.filter((item) => item.genre === selectedGenre)
+      : posts;
+  }
 
   const processContent = (content: string, link: string) => {
     // Split the content by newline characters
@@ -46,8 +96,6 @@ export default function Home() {
     // Get the first 4 lines
     const firstFourLines = lines.slice(0, 4).join('<br>');
 
-    // Check if there are more lines
-    const moreLines = lines.length > 4;
     return (
       <>
         <div
@@ -87,11 +135,57 @@ export default function Home() {
     setIsPlaying(-1); // Stop playing
   };
 
+  // Function to toggle the favorite status of an item
+  const toggleFavorite = (postId: string) => {
+    const updatedFavorites = [...(favoriteItems as any)];
+    const itemIndex = updatedFavorites.indexOf(postId);
+
+    if (itemIndex === -1) {
+      updatedFavorites.push(postId);
+    } else {
+      updatedFavorites.splice(itemIndex, 1);
+    }
+
+    // Update the favorite items in state and localStorage
+    setFavoriteItems(updatedFavorites as any);
+    localStorage.setItem(localStorageKey, JSON.stringify(updatedFavorites));
+  };
+
+  // Function to check if an item is in the favorite list
+  const isFavorite = (postId: string) => favoriteItems.includes(postId);
+
+  // Dynamic buttons based on wishlist status
+  const renderWishlistButtons = (item: Post) => {
+    const isItemInWishlist = isFavorite(item.id);
+
+    return (
+      <button
+        onClick={() => toggleFavorite(item.id)}
+        className='focus:outline-none pt-1'
+      >
+        {isItemInWishlist ? <BlueHeartIcon /> : <GrayHeartIcon />}
+      </button>
+    );
+  };
   return (
     <Layout>
+      {/* Dropdown menu for selecting the genre */}
+      <div>
+        <select
+          value={selectedGenre}
+          onChange={(e) => setSelectedGenre(e.target.value)}
+          className='p-2 border rounded-md'
+        >
+          <option value=''>Svi žanrovi</option>
+          <option value='narodne'>Narodne</option>
+          <option value='pop'>Pop</option>
+          <option value='moderne'>Moderne</option>
+          <option value='omiljene'>Omiljene</option>
+        </select>
+      </div>
       <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
-        {posts.length > 0 ? (
-          posts.map((item, index) => {
+        {filteredPosts.length > 0 ? (
+          filteredPosts.map((item, index) => {
             return (
               <div
                 key={item.id}
@@ -125,6 +219,7 @@ export default function Home() {
                         </span>
                       </button>
                     )}
+                    {renderWishlistButtons(item)}
                   </div>
                   {item.voiceCover && postId === item.id && (
                     <div className='video-container'>
@@ -162,8 +257,10 @@ export default function Home() {
               </div>
             );
           })
+        ) : selectedGenre ? (
+          <p>Nema rezultata za pretragu</p>
         ) : (
-          <p>Loading posts...</p>
+          <p>Učitavanje postova...</p>
         )}
       </div>
     </Layout>

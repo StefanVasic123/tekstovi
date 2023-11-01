@@ -10,7 +10,20 @@ interface RequestBody {
 }
 
 export async function GET(request: Request) {
-  const posts = await prisma.post.findMany();
+  const genre = request.url.split('?')[1]?.split('=')[1]; // Extract the 'genre' query parameter
+
+  let posts;
+
+  if (genre) {
+    posts = await prisma.post.findMany({
+      where: {
+        genre: genre,
+      },
+    });
+  } else {
+    posts = await prisma.post.findMany();
+  }
+
   return NextResponse.json(posts);
 }
 

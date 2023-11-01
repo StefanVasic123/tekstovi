@@ -9,17 +9,6 @@ const Navbar = () => {
           <Link href='/'>
             <span className='mr-5'>tekstovi</span>
           </Link>
-          <div className='hidden group-hover:block absolute top-full left-0 bg-white border border-gray-300 p-4'>
-            <Link href='/'>
-              <p>narodne</p>
-            </Link>
-            <Link href='/'>
-              <p>zabavne</p>
-            </Link>
-            <Link href='/'>
-              <p>moderne</p>
-            </Link>
-          </div>
         </div>
       </div>
       <div>

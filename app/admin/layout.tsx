@@ -16,6 +16,7 @@ const AdminLayout = () => {
   const [id, setId] = useState('');
   const [title, setTitle] = useState('');
   const [posts, setPosts] = useState<Post[]>([]);
+  const [updateData, setUpdateData] = useState({});
   const [updateError, setUpdateError] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -65,8 +66,17 @@ const AdminLayout = () => {
   };
 
   const handleUpdate = (post: Post) => {
-    setId(post.id);
-    setTitle(post.title);
+    const { id, title, content, genre, date, voiceCover } = post;
+    setId(id);
+    setTitle(title);
+    setUpdateData({
+      id,
+      title,
+      content,
+      genre,
+      date,
+      voiceCover,
+    });
     setIsUpdating(true);
   };
 
@@ -100,6 +110,7 @@ const AdminLayout = () => {
             modalId='Unesi tekst'
             onSubmit={(e) => handleSubmit(e)}
             title={title}
+            originalData={updateData}
           />
         </div>
         <div>
@@ -132,6 +143,7 @@ const AdminLayout = () => {
           modalId='Izmeni tekst'
           onSubmit={(e) => handleUpdateSubmit(e)}
           title={title}
+          originalData={updateData}
         />
       )}
       {updateError && <div>{updateError}</div>}
