@@ -41,6 +41,7 @@ interface Post {
   title: string;
   content: string;
   genre: string;
+  gender: string;
   date: string;
   voiceCover: string;
   video: string;
@@ -55,6 +56,7 @@ export default function Home() {
   const [postStates, setPostStates] = useState<boolean[]>([]);
   const [postIndex, setPostIndex] = useState(-1);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
+  const [selectedGender, setSelectedGender] = useState<string>('');
   const [favoriteItems, setFavoriteItems] = useState<string[]>();
 
   // Define a key for localStorage
@@ -81,14 +83,16 @@ export default function Home() {
   let filteredPosts;
 
   // Filter items based on the selected genre
-  if (selectedGenre === 'omiljene') {
+  if (selectedGenre === 'wishlist') {
     filteredPosts = posts.filter((item) =>
       (favoriteItems ?? []).includes(item.id as any)
     );
+  } else if (['folk', 'pop', 'dancehall'].includes(selectedGenre)) {
+    filteredPosts = posts.filter((item) => item.genre === selectedGenre);
+  } else if (['male', 'female', 'duet'].includes(selectedGender)) {
+    filteredPosts = posts.filter((item) => item.gender === selectedGender);
   } else {
-    filteredPosts = selectedGenre
-      ? posts.filter((item) => item.genre === selectedGenre)
-      : posts;
+    filteredPosts = posts;
   }
 
   const processContent = (content: string, link: string) => {
@@ -172,19 +176,52 @@ export default function Home() {
   return (
     <Layout>
       {/* Dropdown menu for selecting the genre */}
-      <div>
-        <select
-          value={selectedGenre}
-          onChange={(e) => setSelectedGenre(e.target.value)}
-          className='p-2 border rounded-md'
-        >
-          <option value=''>Svi žanrovi</option>
-          <option value='narodne'>Narodne</option>
-          <option value='pop'>Pop</option>
-          <option value='moderne'>Moderne</option>
-          <option value='omiljene'>Omiljene</option>
-        </select>
+      <div className='flex'>
+        <div>
+          <select
+            value={selectedGenre}
+            onChange={(e) => {
+              setSelectedGenre(e.target.value);
+              setSelectedGender('');
+            }}
+            className='p-2 border rounded-md'
+          >
+            <option value=''>Obaberi žanr</option>
+            <option value='folk'>Narodne</option>
+            <option value='pop'>Pop</option>
+            <option value='dancehall'>Moderne</option>
+          </select>
+        </div>
+        {/* Dropdown menu for selecting gender */}
+        <div>
+          <select
+            value={selectedGender}
+            onChange={(e) => {
+              setSelectedGender(e.target.value);
+              setSelectedGenre('');
+            }}
+            className='p-2 border rounded-md'
+          >
+            <option value=''>Odaberi pol</option>
+            <option value='male'>Muški</option>
+            <option value='female'>Ženski</option>
+            <option value='duet'>Duet</option>
+          </select>
+        </div>
+        {/* Button for filtering wishlist */}
+        <div>
+          <button
+            className='p-2 border rounded-md'
+            onClick={() => {
+              setSelectedGenre('wishlist');
+              setSelectedGender('');
+            }}
+          >
+            Omiljene
+          </button>
+        </div>
       </div>
+
       <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
         {filteredPosts.length > 0 ? (
           filteredPosts.map((item, index) => {
@@ -259,10 +296,10 @@ export default function Home() {
               </div>
             );
           })
-        ) : selectedGenre ? (
+        ) : selectedGenre || selectedGender ? (
           <p>Nema rezultata za pretragu</p>
         ) : (
-          <p>Učitavanje postova...</p>
+          <p>Učitavanje tekstova...</p>
         )}
       </div>
     </Layout>
