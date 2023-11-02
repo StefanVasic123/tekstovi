@@ -54,8 +54,8 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(-1);
   const [postStates, setPostStates] = useState<boolean[]>([]);
   const [postIndex, setPostIndex] = useState(-1);
-  const [selectedGenre, setSelectedGenre] = useState('');
-  const [favoriteItems, setFavoriteItems] = useState();
+  const [selectedGenre, setSelectedGenre] = useState<string>('');
+  const [favoriteItems, setFavoriteItems] = useState<string[]>();
 
   // Define a key for localStorage
   const localStorageKey = 'favoriteItems';
@@ -82,7 +82,9 @@ export default function Home() {
 
   // Filter items based on the selected genre
   if (selectedGenre === 'omiljene') {
-    filteredPosts = posts.filter((item) => favoriteItems.includes(item.id));
+    filteredPosts = posts.filter((item) =>
+      (favoriteItems ?? []).includes(item.id as any)
+    );
   } else {
     filteredPosts = selectedGenre
       ? posts.filter((item) => item.genre === selectedGenre)
@@ -152,7 +154,7 @@ export default function Home() {
   };
 
   // Function to check if an item is in the favorite list
-  const isFavorite = (postId: string) => favoriteItems.includes(postId);
+  const isFavorite = (postId: string) => (favoriteItems ?? []).includes(postId);
 
   // Dynamic buttons based on wishlist status
   const renderWishlistButtons = (item: Post) => {
