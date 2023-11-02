@@ -4,6 +4,7 @@ interface ModalData {
   title: string;
   content: string;
   genre: string;
+  gender: string;
   date: string;
   voiceCover: string;
 }
@@ -22,6 +23,7 @@ const Modal: React.FC<ModalProps> = ({ modalId, onSubmit, originalData }) => {
     content: originalData ? originalData.content : '',
     voiceCover: originalData ? originalData.voiceCover : '',
     genre: originalData ? originalData.genre : '',
+    gender: originalData ? originalData.gender : '',
     date: originalData ? originalData.date : '',
   });
 
@@ -39,10 +41,17 @@ const Modal: React.FC<ModalProps> = ({ modalId, onSubmit, originalData }) => {
     });
   };
 
-  const handleSelect = (e: any) => {
+  const handleSelectGenre = (e: any) => {
     setFormData({
       ...formData,
       genre: e,
+    });
+  };
+
+  const handleSelectGender = (e: any) => {
+    setFormData({
+      ...formData,
+      gender: e,
     });
   };
 
@@ -122,15 +131,29 @@ const Modal: React.FC<ModalProps> = ({ modalId, onSubmit, originalData }) => {
               <select
                 name='genre'
                 value={formData.genre}
-                onChange={(e: any) => handleSelect(e.target.value)}
+                onChange={(e: any) => handleSelectGenre(e.target.value)}
                 className='w-full outline-none border-none'
               >
                 <option value='' disabled>
                   Odaberi žanr
                 </option>
-                <option value='narodne'>Narodna</option>
+                <option value='folk'>Narodna</option>
                 <option value='pop'>Pop</option>
-                <option value='moderne'>Moderna</option>
+                <option value='dancehall'>Dancehall</option>
+              </select>
+
+              <select
+                name='gender'
+                value={formData.gender}
+                onChange={(e: any) => handleSelectGender(e.target.value)}
+                className='w-full outline-none border-none'
+              >
+                <option value='' disabled>
+                  Odaberi rod
+                </option>
+                <option value='male'>Muški</option>
+                <option value='female'>Ženski</option>
+                <option value='duet'>Duet</option>
               </select>
 
               <input

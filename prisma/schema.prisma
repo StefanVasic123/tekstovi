@@ -13,6 +13,7 @@ model Post {
   title       String
   content     String?
   genre       String
+  gender      String      @default("male")
   date        String
   published   Boolean    @default(false)
   voiceCover  String?    

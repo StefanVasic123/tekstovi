@@ -8,6 +8,7 @@ interface Post {
   title: string;
   content: string;
   genre: string;
+  gender: string;
   date: string;
   voiceCover: string;
 }
@@ -66,7 +67,7 @@ const AdminLayout = () => {
   };
 
   const handleUpdate = (post: Post) => {
-    const { id, title, content, genre, date, voiceCover } = post;
+    const { id, title, content, genre, gender, date, voiceCover } = post;
     setId(id);
     setTitle(title);
     setUpdateData({
@@ -74,6 +75,7 @@ const AdminLayout = () => {
       title,
       content,
       genre,
+      gender,
       date,
       voiceCover,
     });
@@ -81,12 +83,12 @@ const AdminLayout = () => {
   };
 
   const handleUpdateSubmit = async (formData: any) => {
-    const { title, content, genre, voiceCover, date } = formData;
+    const { title, content, genre, gender, voiceCover, date } = formData;
     setUpdateError('');
     if (id) {
       // send a request to the server to update the post.
       try {
-        const body = { title, content, genre, voiceCover, date };
+        const body = { title, content, genre, gender, voiceCover, date };
         await fetch('/api/posts/' + id, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
