@@ -19,7 +19,8 @@ const AdminLayout = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [updateData, setUpdateData] = useState({});
   const [updateError, setUpdateError] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isOpenCreate, setIsOpenCreate] = useState(false);
+  const [isOpenUpdate, setIsOpenUpdate] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -66,6 +67,10 @@ const AdminLayout = () => {
     }
   };
 
+  const handleCreate = () => {
+    toggleModal('create');
+  };
+
   const handleUpdate = (post: Post) => {
     const { id, title, content, genre, gender, date, voiceCover } = post;
     setId(id);
@@ -79,7 +84,7 @@ const AdminLayout = () => {
       date,
       voiceCover,
     });
-    setIsUpdating(true);
+    toggleModal('update');
   };
 
   const handleUpdateSubmit = async (formData: any) => {
@@ -94,7 +99,6 @@ const AdminLayout = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
-        setIsUpdating(false); // Close the update modal after submission
         fetchData(); // Refresh the list of posts after updating
       } catch (error) {
         console.error(error);
@@ -104,19 +108,26 @@ const AdminLayout = () => {
     }
   };
 
+  const toggleModal = (type: string) => {
+    switch (type) {
+      case 'create':
+        setIsOpenCreate(!isOpenCreate);
+        break;
+      case 'update':
+        setIsOpenUpdate(!isOpenUpdate);
+        break;
+      default:
+        setIsOpenCreate(false);
+        setIsOpenUpdate(false);
+    }
+  };
+
   return (
     <Layout>
       <div>
         <div>
-          <Modal
-            modalId='Unesi tekst'
-            onSubmit={(e) => handleSubmit(e)}
-            title={title}
-            originalData={updateData}
-          />
-        </div>
-        <div>
           <h1 className='text-2xl font-bold mb-4'>Tvoji tekstovi</h1>
+          <button onClick={() => handleCreate()}>Unesi tekst</button>
           {posts.map((post) => (
             <div key={post.id} className='mb-4'>
               <div className='flex justify-between items-center'>
@@ -140,14 +151,29 @@ const AdminLayout = () => {
           ))}
         </div>
       </div>
-      {isUpdating && (
-        <Modal
-          modalId='Izmeni tekst'
-          onSubmit={(e) => handleUpdateSubmit(e)}
-          title={title}
-          originalData={updateData}
-        />
+      {isOpenCreate && (
+        <div>
+          <Modal
+            modalId='create'
+            onSubmit={(e) => handleSubmit(e)}
+            title={title}
+            originalData={{}}
+            toggleModal={(type: string) => toggleModal(type)}
+          />
+        </div>
       )}
+      {isOpenUpdate && (
+        <div>
+          <Modal
+            modalId='update'
+            onSubmit={(e) => handleUpdateSubmit(e)}
+            title={title}
+            originalData={updateData}
+            toggleModal={(type: string) => toggleModal(type)}
+          />
+        </div>
+      )}
+
       {updateError && <div>{updateError}</div>}
     </Layout>
   );

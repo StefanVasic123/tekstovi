@@ -167,7 +167,7 @@ export default function Home() {
     return (
       <button
         onClick={() => toggleFavorite(item.id)}
-        className='focus:outline-none pt-1'
+        className='focus:outline-none'
       >
         {isItemInWishlist ? <BlueHeartIcon /> : <GrayHeartIcon />}
       </button>
@@ -213,7 +213,9 @@ export default function Home() {
           <button
             className='p-2 border rounded-md'
             onClick={() => {
-              setSelectedGenre('wishlist');
+              selectedGenre === 'wishlist'
+                ? setSelectedGenre('')
+                : setSelectedGenre('wishlist');
               setSelectedGender('');
             }}
           >
