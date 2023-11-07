@@ -31,6 +31,19 @@ export async function POST(request: Request) {
   try {
     const body: RequestBody = await request.json();
 
+    // Retrieve the maximum listPlaceId from existing items
+    const maxListPlaceId = await prisma.post.findFirst({
+      select: {
+        listPlaceId: true,
+      },
+      orderBy: {
+        listPlaceId: 'desc',
+      },
+    });
+
+    // Calculate the new listPlaceId (incremented by 1)
+    const newListPlaceId = maxListPlaceId ? maxListPlaceId.listPlaceId + 1 : 1;
+
     const post = await prisma.post.create({
       data: {
         title: body.title,
@@ -38,6 +51,7 @@ export async function POST(request: Request) {
         genre: body.genre,
         date: body.date,
         voiceCover: body.voiceCover,
+        listPlaceId: newListPlaceId, // Set the new listPlaceId
       },
     });
 

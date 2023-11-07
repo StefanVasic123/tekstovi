@@ -46,6 +46,7 @@ interface Post {
   voiceCover: string;
   video: string;
   index: number;
+  listPlaceId: number;
 }
 
 export default function Home() {
@@ -68,6 +69,7 @@ export default function Home() {
         const response = await fetch('/api/posts');
         if (response.ok) {
           const data: Post[] = await response.json();
+          data.sort((a, b) => a.listPlaceId - b.listPlaceId);
           setPosts(data);
         }
       } catch (error) {

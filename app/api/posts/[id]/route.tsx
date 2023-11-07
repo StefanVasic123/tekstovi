@@ -24,17 +24,37 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const id = params.id;
-  let json = await request.json();
 
-  const updated_post = await prisma.post.update({
-    where: { id },
-    data: json,
-  });
-  if (!updated_post) {
-    return new NextResponse('No post with ID found', { status: 404 });
+  let data = await request.json();
+
+  try {
+    // If data is an array of objects, update each item
+    if (Array.isArray(data)) {
+      const updatedItems = [];
+
+      for (const item of data) {
+        const updated_post = await prisma.post.update({
+          where: { id: item.id },
+          data: {
+            listPlaceId: item.index,
+          },
+        });
+        updatedItems.push(updated_post);
+      }
+
+      return NextResponse.json(updatedItems);
+    } else {
+      // If data is not an array, update a single item
+      const updated_post = await prisma.post.update({
+        where: { id },
+        data,
+      });
+
+      return NextResponse.json(updated_post);
+    }
+  } catch (error: any) {
+    return new NextResponse(error.message, { status: 500 });
   }
-
-  return NextResponse.json(updated_post);
 }
 
 export async function DELETE(
