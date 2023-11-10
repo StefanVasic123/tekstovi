@@ -139,7 +139,7 @@ const Modal: React.FC<ModalProps> = ({
               className='w-full outline-none border-none'
             >
               <option value='' disabled>
-                Odaberi rod
+                Vokal
               </option>
               <option value='male'>Muški</option>
               <option value='female'>Ženski</option>
