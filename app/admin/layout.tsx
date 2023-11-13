@@ -28,7 +28,11 @@ const AdminLayout = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('/api/posts');
+      const response = await fetch('/api/posts', {
+        headers: {
+          'x-admin-request': 'true',
+        },
+      });
       if (response.ok) {
         const data: Post[] = await response.json();
         data.sort((a, b) => a.listPlaceId - b.listPlaceId);

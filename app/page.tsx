@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import Layout from './components/layout';
 import Link from 'next/link';
 import YouTube from 'react-youtube';
@@ -51,6 +52,7 @@ interface Post {
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [postsPagination, setPostsPagination] = useState<number>(1);
   const [postId, setPostId] = useState('');
   const [videoId, setVideoId] = useState('');
   const [isPlaying, setIsPlaying] = useState(-1);
@@ -59,28 +61,40 @@ export default function Home() {
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const [selectedGender, setSelectedGender] = useState<string>('');
   const [favoriteItems, setFavoriteItems] = useState<string[]>();
+  const [hasMore, setHasMore] = useState(true);
 
   // Define a key for localStorage
   const localStorageKey = 'favoriteItems';
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/posts');
-        if (response.ok) {
-          const data: Post[] = await response.json();
-          data.sort((a, b) => a.listPlaceId - b.listPlaceId);
-          setPosts(data);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
+  const fetchData = async () => {
+    try {
+      const response = await fetch(
+        `/api/posts?postsPagination=${postsPagination}`
+      );
+      if (response.ok) {
+        const data: Post[] = await response.json();
+        data.sort((a, b) => a.listPlaceId - b.listPlaceId);
+        data?.length === 0 && setHasMore(false);
+        setPosts((prevPosts) => [...prevPosts, ...data]);
+        setPostsPagination((prevPagination) => prevPagination + 1);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setHasMore(false);
+    }
+  };
 
+  const fetchMoreData = () => {
+    fetchData();
+  };
+
+  useEffect(() => {
     const storedItems = localStorage.getItem(localStorageKey);
     setFavoriteItems(storedItems ? JSON.parse(storedItems) : []);
 
-    fetchData();
+    return () => {
+      fetchData();
+    };
   }, []);
   let filteredPosts;
 
@@ -226,86 +240,103 @@ export default function Home() {
         </div>
       </div>
 
-      <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((item, index) => {
-            return (
-              <div
-                key={item.id}
-                className='bg-white p-4 shadow-md hover:shadow-lg cursor-pointer text-center flex flex-col h-full'
-              >
-                <div className='mb-4'>
-                  <div className='flex items-center justify-center mb-2'>
-                    <h3 className='text-xl font-semibold'>{item.title}</h3>
-                    {item.voiceCover && (
-                      <button
-                        onClick={() => {
-                          setPostIndex(index);
-                          isPlaying === index
-                            ? stopVideo() // If playing, stop the video
-                            : playVideo(
-                                extractVideoId(item.voiceCover) || '',
-                                item.id || '',
-                                index
-                              ); // If paused, play the video
-                        }}
-                        className='text-blue-600 cursor-pointer ml-2'
-                      >
-                        <span
-                          role='img'
-                          aria-label={
-                            isPlaying === index ? 'Pause Voice' : 'Play Voice'
-                          }
-                        >
-                          {isPlaying === index ? '⏸️' : '▶️'}{' '}
-                          {/* Show pause or play button based on isPlaying */}
-                        </span>
-                      </button>
-                    )}
-                    {renderWishlistButtons(item)}
-                  </div>
-                  {item.voiceCover && postId === item.id && (
-                    <div className='video-container'>
-                      <div
-                        className={`youtube-video ${
-                          isPlaying ? 'playing' : 'paused'
-                        }`}
-                        onClick={isPlaying ? stopVideo : () => {}}
-                      >
-                        <YouTube
-                          videoId={videoId}
-                          opts={{
-                            width: '100%',
-                            height: '0',
-                            playerVars: {
-                              autoplay: isPlaying ? 1 : 0, // Auto-play if isPlaying is true
-                              modestbranding: 1,
-                              rel: 0,
-                              controls: 0,
-                              fs: 0,
-                            },
+      <InfiniteScroll
+        dataLength={posts.length}
+        next={fetchMoreData}
+        hasMore={hasMore} // You should set this based on your logic
+        loader={<h4>Loading...</h4>}
+        endMessage={
+          !selectedGenre ||
+          (!selectedGender && (
+            <p style={{ textAlign: 'center' }}>
+              <b>Yay! You have seen it all</b>
+            </p>
+          ))
+        }
+      >
+        <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
+          {filteredPosts.length > 0 ? (
+            filteredPosts.map((item, index) => {
+              return (
+                <div
+                  key={item.id}
+                  className='bg-white p-4 shadow-md hover:shadow-lg cursor-pointer text-center flex flex-col h-full'
+                >
+                  <div className='mb-4'>
+                    <div className='flex items-center justify-center mb-2'>
+                      <h3 className='text-xl font-semibold'>{item.title}</h3>
+                      {item.voiceCover && (
+                        <button
+                          onClick={() => {
+                            setPostIndex(index);
+                            isPlaying === index
+                              ? stopVideo() // If playing, stop the video
+                              : playVideo(
+                                  extractVideoId(item.voiceCover) || '',
+                                  item.id || '',
+                                  index
+                                ); // If paused, play the video
                           }}
-                        />
-                      </div>
+                          className='text-blue-600 cursor-pointer ml-2'
+                        >
+                          <span
+                            role='img'
+                            aria-label={
+                              isPlaying === index ? 'Pause Voice' : 'Play Voice'
+                            }
+                          >
+                            {isPlaying === index ? '⏸️' : '▶️'}{' '}
+                            {/* Show pause or play button based on isPlaying */}
+                          </span>
+                        </button>
+                      )}
+                      {renderWishlistButtons(item)}
                     </div>
-                  )}
-                  {processContent(item.content, `/posts/${item.id}`)}
-                </div>
-                <div className='mt-auto'>
-                  <div className='flex justify-between'>
-                    <p className='text-blue-600 font-semibold'>{item.genre}</p>
-                    <p className='text-gray-600 text-sm'>{item.date}</p>
+                    {item.voiceCover && postId === item.id && (
+                      <div className='video-container'>
+                        <div
+                          className={`youtube-video ${
+                            isPlaying ? 'playing' : 'paused'
+                          }`}
+                          onClick={isPlaying ? stopVideo : () => {}}
+                        >
+                          <YouTube
+                            videoId={videoId}
+                            opts={{
+                              width: '100%',
+                              height: '0',
+                              playerVars: {
+                                autoplay: isPlaying ? 1 : 0, // Auto-play if isPlaying is true
+                                modestbranding: 1,
+                                rel: 0,
+                                controls: 0,
+                                fs: 0,
+                              },
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {processContent(item.content, `/posts/${item.id}`)}
+                  </div>
+                  <div className='mt-auto'>
+                    <div className='flex justify-between'>
+                      <p className='text-blue-600 font-semibold'>
+                        {item.genre}
+                      </p>
+                      <p className='text-gray-600 text-sm'>{item.date}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })
-        ) : selectedGenre || selectedGender ? (
-          <p>Nema rezultata za pretragu</p>
-        ) : (
-          <p>Učitavanje tekstova...</p>
-        )}
-      </div>
+              );
+            })
+          ) : selectedGenre || selectedGender ? (
+            <p>Nema rezultata za pretragu</p>
+          ) : (
+            <p>Učitavanje tekstova...</p>
+          )}
+        </div>
+      </InfiniteScroll>
     </Layout>
   );
 }
