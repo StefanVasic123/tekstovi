@@ -91,10 +91,7 @@ export default function Home() {
   useEffect(() => {
     const storedItems = localStorage.getItem(localStorageKey);
     setFavoriteItems(storedItems ? JSON.parse(storedItems) : []);
-
-    return () => {
-      fetchData();
-    };
+    fetchData();
   }, []);
   let filteredPosts;
 
