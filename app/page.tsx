@@ -60,6 +60,7 @@ export default function Home() {
   const [postIndex, setPostIndex] = useState(-1);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const [selectedGender, setSelectedGender] = useState<string>('');
+  const [selectedWishlist, setSelectedWishlist] = useState<boolean>(false);
   const [favoriteItems, setFavoriteItems] = useState<string[]>();
   const [hasMore, setHasMore] = useState(true);
 
@@ -68,9 +69,13 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(
-        `/api/posts?postsPagination=${postsPagination}`
-      );
+      // Conditionally include genre and gender parameters
+      const url = `/api/posts?postsPagination=${postsPagination}${
+        selectedGenre ? `&genre=${selectedGenre}` : ''
+      }${selectedGender ? `&gender=${selectedGender}` : ''}`;
+
+      const response = await fetch(url);
+
       if (response.ok) {
         const data: Post[] = await response.json();
         data.sort((a, b) => a.listPlaceId - b.listPlaceId);
@@ -88,25 +93,42 @@ export default function Home() {
     fetchData();
   };
 
+  const fetchFilteredData = async (isWishlist: boolean) => {
+    try {
+      let url = `/api/posts?postsPagination=1${
+        selectedGenre ? `&genre=${selectedGenre}` : ''
+      }${selectedGender ? `&gender=${selectedGender}` : ''}`;
+
+      if (isWishlist) {
+        // Fetch wishlist posts
+        const storedItems = localStorage.getItem(localStorageKey);
+        const wishlistItems = storedItems ? JSON.parse(storedItems) : [];
+        url += `&wishlist=${JSON.stringify(wishlistItems)}`;
+      }
+
+      const response = await fetch(url);
+
+      if (response.ok) {
+        const data: Post[] = await response.json();
+        data.sort((a, b) => a.listPlaceId - b.listPlaceId);
+        data?.length === 0 && setHasMore(false);
+        setPosts(data);
+        setPostsPagination(2); // Increment pagination for infinite scroll
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setHasMore(false);
+    }
+  };
+
   useEffect(() => {
     const storedItems = localStorage.getItem(localStorageKey);
     setFavoriteItems(storedItems ? JSON.parse(storedItems) : []);
-    fetchData();
-  }, []);
-  let filteredPosts;
-
-  // Filter items based on the selected genre
-  if (selectedGenre === 'wishlist') {
-    filteredPosts = posts.filter((item) =>
-      (favoriteItems ?? []).includes(item.id as any)
-    );
-  } else if (['folk', 'pop', 'dancehall'].includes(selectedGenre)) {
-    filteredPosts = posts.filter((item) => item.genre === selectedGenre);
-  } else if (['male', 'female', 'duet'].includes(selectedGender)) {
-    filteredPosts = posts.filter((item) => item.gender === selectedGender);
-  } else {
-    filteredPosts = posts;
-  }
+    setPosts([]);
+    setPostsPagination(1);
+    setHasMore(true);
+    fetchFilteredData(false);
+  }, [selectedGenre, selectedGender]);
 
   const processContent = (content: string, link: string) => {
     // Split the content by newline characters
@@ -195,7 +217,6 @@ export default function Home() {
             value={selectedGenre}
             onChange={(e) => {
               setSelectedGenre(e.target.value);
-              setSelectedGender('');
             }}
             className='p-2 border rounded-md'
           >
@@ -211,7 +232,6 @@ export default function Home() {
             value={selectedGender}
             onChange={(e) => {
               setSelectedGender(e.target.value);
-              setSelectedGenre('');
             }}
             className='p-2 border rounded-md'
           >
@@ -226,13 +246,13 @@ export default function Home() {
           <button
             className='p-2 border rounded-md'
             onClick={() => {
-              selectedGenre === 'wishlist'
-                ? setSelectedGenre('')
-                : setSelectedGenre('wishlist');
+              fetchFilteredData(selectedWishlist ? false : true);
+              setSelectedWishlist((prevState) => !prevState);
               setSelectedGender('');
+              setSelectedGenre('');
             }}
           >
-            Omiljene
+            {selectedWishlist ? 'Reset' : 'Omiljene'}
           </button>
         </div>
       </div>
@@ -252,8 +272,8 @@ export default function Home() {
         }
       >
         <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
-          {filteredPosts.length > 0 ? (
-            filteredPosts.map((item, index) => {
+          {posts.length > 0 ? (
+            posts.map((item, index) => {
               return (
                 <div
                   key={item.id}
