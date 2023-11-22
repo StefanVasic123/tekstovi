@@ -83,13 +83,16 @@ const PostPage: React.FC = () => {
 
   const notification = isCopied && (
     <div className='bg-gray-500 text-white p-2 absolute top-0 right-0 mt-2 mr-2 rounded'>
-      Copied to clipboard!
+      Link do teksta kopiran!
     </div>
   );
 
   const videoFrame = (
-    <div className='flex items-center justify-center max-w-screen-lg mx-auto my-6'>
-      <div dangerouslySetInnerHTML={{ __html: post.voiceCover }} />
+    <div className='flex items-center justify-center max-w-screen-lg mx-auto my-6 overflow-hidden'>
+      <div
+        className='youtube-video'
+        dangerouslySetInnerHTML={{ __html: post.voiceCover }}
+      />
     </div>
   );
 
