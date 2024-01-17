@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import Layout from './components/layout';
+import Layout from '../components/layout';
 import Link from 'next/link';
 import YouTube from 'react-youtube';
 
@@ -266,7 +266,7 @@ export default function Home() {
           !selectedGenre ||
           (!selectedGender && (
             <p style={{ textAlign: 'center' }}>
-              <b>Yay! You have seen it all</b>
+              <b>Nema više rezultata za odabranu pretragu.</b>
             </p>
           ))
         }

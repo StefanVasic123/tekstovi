@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import Layout from '@/app/components/layout';
+import Layout from '@/components/layout';
 
 const CopyToClipboardIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props

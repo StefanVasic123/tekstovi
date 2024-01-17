@@ -1,9 +1,9 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/layout';
-import Modal from '../components/modal';
+import Layout from '../../components/layout';
+import Modal from '../../components/modal';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
-import { StrictModeDroppable } from '../helpers/StrictModeDroppable';
+import { StrictModeDroppable } from '../../components/helpers/StrictModeDroppable';
 
 interface Post {
   id: string;
