@@ -1,3 +1,4 @@
+// NextJS hot reload: everytime we reload prisma client (storing prisma on globalThis)
 import { PrismaClient } from '@prisma/client';
 
 let prisma: PrismaClient;
@@ -15,3 +16,14 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 export default prisma;
+
+// concise way for writing this logic
+/*
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+export const db = globalThis.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV === 'production') globalThis.prisma = db;
+*/
