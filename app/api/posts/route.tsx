@@ -3,11 +3,6 @@ import { NextResponse } from 'next/server';
 
 const POSTS_PER_PAGE = 20;
 
-interface RequestQuery {
-  genre?: string;
-  postsPagination?: string;
-}
-
 interface RequestBody {
   title: string;
   content: string;
@@ -18,8 +13,8 @@ interface RequestBody {
 
 export async function GET(request: Request) {
   const queryParams = new URLSearchParams(request.url.split('?')[1] || '');
-  const genre = queryParams.get('genre');
-  const gender = queryParams.get('gender');
+  const genre: any = queryParams.get('genre');
+  const gender: any = queryParams.get('gender');
   const wishlist = queryParams.get('wishlist');
   const postsPagination = queryParams.get('postsPagination');
   const isAdminRequest = request.headers.get('x-admin-request') === 'true';
@@ -32,6 +27,20 @@ export async function GET(request: Request) {
   if (isAdminRequest) {
     // If the request is coming from the admin page, fetch all posts
     posts = await prisma.post.findMany();
+  } else if (wishlist && (genre || gender)) {
+    // Fetch wishlist posts and filter by genre or gender
+    const wishlistItems = JSON.parse(wishlist);
+    posts = await prisma.post.findMany({
+      where: {
+        id: {
+          in: wishlistItems,
+        },
+        ...(genre && { genre: genre }), // Include genre if it exists
+        ...(gender && { gender: gender }), // Include gender if it exists
+      },
+      take: POSTS_PER_PAGE,
+      skip: offset,
+    });
   } else if (wishlist) {
     // Fetch wishlist posts
     const wishlistItems = JSON.parse(wishlist);
@@ -55,6 +64,7 @@ export async function GET(request: Request) {
       skip: offset,
     });
   } else if (genre) {
+    // Filter by genre
     posts = await prisma.post.findMany({
       where: {
         genre: genre,
@@ -72,6 +82,7 @@ export async function GET(request: Request) {
       skip: offset,
     });
   } else {
+    // Fetch all posts
     posts = await prisma.post.findMany({
       take: POSTS_PER_PAGE,
       skip: offset,

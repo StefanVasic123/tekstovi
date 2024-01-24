@@ -6,8 +6,15 @@
 export const publicRoutes = ['/'];
 
 /**
+ * An array of routes that are protected
+ * These routes can be accessed only if user is logged in
+ * @type {string[]}
+ */
+export const protectedRoutes = ['/admin', '/my-account', '/settings'];
+
+/**
  * An array of routes that are used for auth
- * These routes will redirect logged in users to /settings
+ * These routes will redirect logged in users to /logout
  * @type {string[]}
  */
 export const authRoutes = [
@@ -23,9 +30,10 @@ export const authRoutes = [
  * @type {string}
  */
 export const apiAuthPrefix = '/api/auth';
+export const apiLogout = ['/logout'];
 
 /**
  * The default redirect path after logging in
  * @type {string}
  */
-export const DEFAULT_LOGIN_REDIRECT = '/settings';
+export const DEFAULT_LOGIN_REDIRECT = '/';

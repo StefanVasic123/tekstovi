@@ -12,8 +12,8 @@ model Post {
   id          String     @default(cuid()) @id
   title       String
   content     String?
-  genre       String
-  gender      String     @default("male")
+  genre       String?
+  gender      String?     @default("male")
   date        String
   published   Boolean    @default(false)
   voiceCover  String?    

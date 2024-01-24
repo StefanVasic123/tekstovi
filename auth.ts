@@ -27,8 +27,9 @@ export const {
       if (account?.provider !== 'credentials') return true;
 
       // Prevent sign in without email verification
+      /*
       if (!existingUser?.emailVerified) return false;
-
+      */
       // todo fa check
       return true;
     },

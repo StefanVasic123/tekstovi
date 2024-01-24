@@ -1,41 +1,16 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import useDataFetching from '@/hooks/useDataFetching';
+
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Layout from '../components/layout';
+
 import Link from 'next/link';
 import YouTube from 'react-youtube';
 
-const GrayHeartIcon = () => (
-  <svg
-    xmlns='http://www.w3.org/2000/svg'
-    width='18'
-    height='18'
-    viewBox='0 0 24 24'
-    fill='none'
-    stroke='gray' // Change the color to gray
-    strokeWidth='2'
-    strokeLinecap='round'
-    strokeLinejoin='round'
-  >
-    <path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' />
-  </svg>
-);
-
-const BlueHeartIcon = () => (
-  <svg
-    xmlns='http://www.w3.org/2000/svg'
-    width='18'
-    height='18'
-    viewBox='0 0 24 24'
-    fill='blue'
-    stroke='blue'
-    strokeWidth='2'
-    strokeLinecap='round'
-    strokeLinejoin='round'
-  >
-    <path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' />
-  </svg>
-);
+import GrayHeartIcon from '@/icons/GrayHeartIcon';
+import BlueHeartIcon from '@/icons/BlueHeartIcon';
+import { useWishList } from './context';
 
 interface Post {
   id: string;
@@ -51,83 +26,30 @@ interface Post {
 }
 
 export default function Home() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [postsPagination, setPostsPagination] = useState<number>(1);
+  const { isWishlist } = useWishList();
+  const [selectedGenre, setSelectedGenre] = useState<string>('');
+  const [selectedGender, setSelectedGender] = useState<string>('');
+  let { posts, hasMore, fetchPosts } = useDataFetching({
+    selectedGenre: selectedGenre,
+    selectedGender: selectedGender,
+    isWishlist: isWishlist,
+  });
   const [postId, setPostId] = useState('');
   const [videoId, setVideoId] = useState('');
   const [isPlaying, setIsPlaying] = useState(-1);
-  const [postStates, setPostStates] = useState<boolean[]>([]);
   const [postIndex, setPostIndex] = useState(-1);
-  const [selectedGenre, setSelectedGenre] = useState<string>('');
-  const [selectedGender, setSelectedGender] = useState<string>('');
-  const [selectedWishlist, setSelectedWishlist] = useState<boolean>(false);
   const [favoriteItems, setFavoriteItems] = useState<string[]>();
-  const [hasMore, setHasMore] = useState(true);
 
   // Define a key for localStorage
   const localStorageKey = 'favoriteItems';
 
-  const fetchData = async () => {
-    try {
-      // Conditionally include genre and gender parameters
-      const url = `/api/posts?postsPagination=${postsPagination}${
-        selectedGenre ? `&genre=${selectedGenre}` : ''
-      }${selectedGender ? `&gender=${selectedGender}` : ''}`;
-
-      const response = await fetch(url);
-
-      if (response.ok) {
-        const data: Post[] = await response.json();
-        data.sort((a, b) => a.listPlaceId - b.listPlaceId);
-        data?.length === 0 && setHasMore(false);
-        setPosts((prevPosts) => [...prevPosts, ...data]);
-        setPostsPagination((prevPagination) => prevPagination + 1);
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setHasMore(false);
-    }
-  };
-
   const fetchMoreData = () => {
-    fetchData();
-  };
-
-  const fetchFilteredData = async (isWishlist: boolean) => {
-    try {
-      let url = `/api/posts?postsPagination=1${
-        selectedGenre ? `&genre=${selectedGenre}` : ''
-      }${selectedGender ? `&gender=${selectedGender}` : ''}`;
-
-      if (isWishlist) {
-        // Fetch wishlist posts
-        const storedItems = localStorage.getItem(localStorageKey);
-        const wishlistItems = storedItems ? JSON.parse(storedItems) : [];
-        url += `&wishlist=${JSON.stringify(wishlistItems)}`;
-      }
-
-      const response = await fetch(url);
-
-      if (response.ok) {
-        const data: Post[] = await response.json();
-        data.sort((a, b) => a.listPlaceId - b.listPlaceId);
-        data?.length === 0 && setHasMore(false);
-        setPosts(data);
-        setPostsPagination(2); // Increment pagination for infinite scroll
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setHasMore(false);
-    }
+    fetchPosts();
   };
 
   useEffect(() => {
     const storedItems = localStorage.getItem(localStorageKey);
     setFavoriteItems(storedItems ? JSON.parse(storedItems) : []);
-    setPosts([]);
-    setPostsPagination(1);
-    setHasMore(true);
-    fetchFilteredData(false);
   }, [selectedGenre, selectedGender]);
 
   const processContent = (content: string, link: string) => {
@@ -204,10 +126,15 @@ export default function Home() {
         onClick={() => toggleFavorite(item.id)}
         className='focus:outline-none'
       >
-        {isItemInWishlist ? <BlueHeartIcon /> : <GrayHeartIcon />}
+        {isItemInWishlist ? (
+          <BlueHeartIcon onClick={() => {}} />
+        ) : (
+          <GrayHeartIcon onClick={() => {}} />
+        )}
       </button>
     );
   };
+
   return (
     <Layout>
       {/* Dropdown menu for selecting the genre */}
@@ -241,20 +168,6 @@ export default function Home() {
             <option value='duet'>Duet</option>
           </select>
         </div>
-        {/* Button for filtering wishlist */}
-        <div>
-          <button
-            className='p-2 border rounded-md'
-            onClick={() => {
-              fetchFilteredData(selectedWishlist ? false : true);
-              setSelectedWishlist((prevState) => !prevState);
-              setSelectedGender('');
-              setSelectedGenre('');
-            }}
-          >
-            {selectedWishlist ? 'Reset' : 'Omiljene'}
-          </button>
-        </div>
       </div>
 
       <InfiniteScroll
@@ -276,7 +189,7 @@ export default function Home() {
             posts.map((item, index) => {
               return (
                 <div
-                  key={item.id}
+                  key={Math.random()}
                   className='bg-white p-4 shadow-md hover:shadow-lg cursor-pointer text-center flex flex-col h-full'
                 >
                   <div className='mb-4'>
