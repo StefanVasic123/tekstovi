@@ -8,7 +8,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useWishList } from '@/app/context';
 
 const Navbar = () => {
-  const { isHeartClicked, toggleHeartClick } = useWishList();
+  const { isWishlist, toggleHeartClick } = useWishList();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const isUser = useCurrentUser();
@@ -34,7 +34,7 @@ const Navbar = () => {
 
       {/* Right section */}
       <div className='flex items-center space-x-4'>
-        {isHeartClicked ? (
+        {isWishlist ? (
           <BlueHeartIcon onClick={toggleHeartClick} />
         ) : (
           <GrayHeartIcon onClick={toggleHeartClick} />
