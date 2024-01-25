@@ -8,6 +8,7 @@ import {
   apiAuthPrefix,
   DEFAULT_LOGIN_REDIRECT,
   apiLogout,
+  loginRoute,
   protectedRoutes,
 } from '@/routes';
 
@@ -20,6 +21,7 @@ export default auth((req) => {
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
   const isApiLogout = apiLogout.includes(nextUrl.pathname);
   const isProtected = protectedRoutes.includes(nextUrl.pathname);
+  const isLoginRoute = loginRoute.includes(nextUrl.pathname);
 
   if (isApiAuthRoute) {
     return null;
@@ -46,11 +48,13 @@ export default auth((req) => {
     }
     return null;
   }
-  /*
+
   if (!isLoggedIn && !isPublicRoute) {
-    return Response.redirect(new URL('/', nextUrl));
+    if (isLoginRoute) {
+      return Response.redirect(new URL('/auth/login', nextUrl));
+    }
+    return null;
   }
-*/
 });
 
 // every route will invoke middleware
