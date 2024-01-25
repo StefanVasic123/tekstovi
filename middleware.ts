@@ -28,13 +28,19 @@ export default auth((req) => {
   }
 
   // if currently on auth route
-  if (isAuthRoute) {
+  /**
+   * problem on Vercel production
+   * auth/login fetch/Redirect 302 status
+   * TODO solution for auth routes when user is logged in
+   * solution: conditionally render form if user is not logged in and back page if does
+   */
+  /*  if (isAuthRoute) {
     if (isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
     }
     return null;
   }
-
+*/
   if (isProtected) {
     if (!isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
