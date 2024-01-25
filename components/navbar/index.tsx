@@ -56,9 +56,11 @@ const Navbar = () => {
         <Link href='/pricing'>
           <p className='ml-4 text-center'>Pricing</p>
         </Link>
-        <Link href='/admin'>
-          <p className='ml-4 text-center'>Admin</p>
-        </Link>
+        {isUser && (
+          <Link href='/admin'>
+            <p className='ml-4 text-center'>Admin</p>
+          </Link>
+        )}
         <div
           className='ml-4 text-center cursor-pointer'
           onMouseEnter={handleProfileClick}

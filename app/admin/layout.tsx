@@ -4,6 +4,7 @@ import Layout from '../../components/layout';
 import Modal from '../../components/modal';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from '../../components/helpers/StrictModeDroppable';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface Post {
   id: string;
@@ -26,9 +27,15 @@ const AdminLayout = () => {
   const [isOpenCreate, setIsOpenCreate] = useState(false);
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
 
+  const currentUser: any = useCurrentUser();
+
   const fetchData = async () => {
+    const queryParams = new URLSearchParams({
+      authorId: currentUser?.id,
+    });
+
     try {
-      const response = await fetch('/api/posts', {
+      const response = await fetch(`/api/posts?${queryParams.toString()}`, {
         headers: {
           'x-admin-request': 'true',
         },
@@ -49,7 +56,7 @@ const AdminLayout = () => {
 
   const handleSubmit = async (data: Object) => {
     try {
-      await fetch(`/api/posts`, {
+      await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

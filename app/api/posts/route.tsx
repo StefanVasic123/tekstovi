@@ -20,15 +20,23 @@ export async function GET(request: Request) {
   const wishlist = queryParams.get('wishlist');
   const postsPagination = queryParams.get('postsPagination');
   const isAdminRequest = request.headers.get('x-admin-request') === 'true';
+  const authorId = queryParams.get('authorId');
 
-  let posts;
+  let posts: any;
   // Filter by genre
   const page = parseInt(postsPagination || '1', 10);
   const offset = (page - 1) * POSTS_PER_PAGE;
 
   if (isAdminRequest) {
     // If the request is coming from the admin page, fetch all posts
-    posts = await prisma.post.findMany();
+    console.log('AUTHOR_ID: ', authorId);
+    if (!authorId) {
+      posts = [];
+    } else {
+      posts = await prisma.post.findMany({
+        where: { authorId: authorId },
+      });
+    }
   } else if (wishlist && (genre || gender)) {
     // Fetch wishlist posts and filter by genre or gender
     const wishlistItems = JSON.parse(wishlist);
