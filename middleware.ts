@@ -53,7 +53,6 @@ export default auth((req) => {
     if (isLoginRoute) {
       return Response.redirect(new URL('/auth/login', nextUrl));
     }
-    return null;
   }
 });
 
