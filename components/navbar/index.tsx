@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import GrayHeartIcon from '@/icons/GrayHeartIcon';
 import BlueHeartIcon from '@/icons/BlueHeartIcon';
@@ -10,6 +11,7 @@ import { useWishList } from '@/app/context';
 const Navbar = () => {
   const { isWishlist, toggleHeartClick } = useWishList();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const router = useRouter();
 
   const isUser = useCurrentUser();
 
@@ -66,9 +68,9 @@ const Navbar = () => {
           onMouseEnter={handleProfileClick}
           onMouseLeave={closeDropdown}
         >
-          <Link href={isUser ? '' : '/auth/login'}>
+          <button onClick={() => !isUser && router.push('/auth/login')}>
             <FontAwesomeIcon icon={faUser} />
-          </Link>
+          </button>
           {isDropdownOpen && isUser && (
             <div className='absolute bg-white border rounded-md right-0'>
               <Link href='/my-account'>
