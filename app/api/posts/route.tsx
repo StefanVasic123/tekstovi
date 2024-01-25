@@ -9,6 +9,8 @@ interface RequestBody {
   genre: string;
   date: string;
   voiceCover: string;
+  author: object;
+  authorId: any;
 }
 
 export async function GET(request: Request) {
@@ -116,7 +118,8 @@ export async function POST(request: Request) {
         genre: body.genre,
         date: body.date,
         voiceCover: body.voiceCover,
-        listPlaceId: newListPlaceId, // Set the new listPlaceId
+        listPlaceId: newListPlaceId,
+        authorId: body.authorId,
       },
     });
 

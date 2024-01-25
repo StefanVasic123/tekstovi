@@ -1,3 +1,4 @@
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import React, { useState, useEffect } from 'react';
 
 interface ModalData {
@@ -7,6 +8,7 @@ interface ModalData {
   gender: string;
   date: string;
   voiceCover: string;
+  authorId: string;
 }
 
 interface ModalProps {
@@ -23,6 +25,7 @@ const Modal: React.FC<ModalProps> = ({
   originalData,
   toggleModal,
 }) => {
+  const isUser = useCurrentUser();
   const [formData, setFormData] = useState<ModalData>({
     title: modalId === 'update' ? originalData.title : '',
     content: modalId === 'update' ? originalData.content : '',
@@ -30,6 +33,7 @@ const Modal: React.FC<ModalProps> = ({
     genre: modalId === 'update' ? originalData.genre : '',
     gender: modalId === 'update' ? originalData.gender : '',
     date: modalId === 'update' ? originalData.date : '',
+    authorId: '',
   });
 
   const handleInputChange = (
@@ -58,7 +62,10 @@ const Modal: React.FC<ModalProps> = ({
 
   const handleSubmit = () => {
     // Send the data to your Prisma API or do any other required actions.
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      authorId: isUser?.id || '',
+    });
     toggleModal(''); // Close the modal after submission.
   };
 

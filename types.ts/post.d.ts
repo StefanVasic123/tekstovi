@@ -9,4 +9,5 @@ export interface Post {
   video: string;
   index: number;
   listPlaceId: number;
+  authorId: string;
 }

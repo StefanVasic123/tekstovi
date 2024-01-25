@@ -48,8 +48,6 @@ const AdminLayout = () => {
   }, []);
 
   const handleSubmit = async (data: Object) => {
-    // send a request to the server.
-    // trebam da saljem i authorId
     try {
       await fetch(`/api/posts`, {
         method: 'POST',
