@@ -5,17 +5,7 @@ import Modal from '../../components/modal';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from '../../components/helpers/StrictModeDroppable';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  genre: string;
-  gender: string;
-  date: string;
-  voiceCover: string;
-  listPlaceId: number;
-}
+import { Post } from '@/types.ts/post';
 
 const AdminLayout = () => {
   const [id, setId] = useState('');

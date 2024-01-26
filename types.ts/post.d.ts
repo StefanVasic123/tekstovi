@@ -10,4 +10,5 @@ export interface Post {
   index: number;
   listPlaceId: number;
   authorId: string;
+  author: any;
 }

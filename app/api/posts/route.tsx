@@ -27,9 +27,16 @@ export async function GET(request: Request) {
   const page = parseInt(postsPagination || '1', 10);
   const offset = (page - 1) * POSTS_PER_PAGE;
 
+  const includeAuthor = {
+    author: {
+      select: {
+        name: true,
+      },
+    },
+  };
+
   if (isAdminRequest) {
     // If the request is coming from the admin page, fetch all posts
-    console.log('AUTHOR_ID: ', authorId);
     if (!authorId) {
       posts = [];
     } else {
@@ -50,6 +57,7 @@ export async function GET(request: Request) {
       },
       take: POSTS_PER_PAGE,
       skip: offset,
+      include: includeAuthor,
     });
   } else if (wishlist) {
     // Fetch wishlist posts
@@ -62,6 +70,7 @@ export async function GET(request: Request) {
       },
       take: POSTS_PER_PAGE,
       skip: offset,
+      include: includeAuthor,
     });
   } else if (genre && gender) {
     // Filter by both genre and gender
@@ -72,6 +81,7 @@ export async function GET(request: Request) {
       },
       take: POSTS_PER_PAGE,
       skip: offset,
+      include: includeAuthor,
     });
   } else if (genre) {
     // Filter by genre
@@ -81,6 +91,7 @@ export async function GET(request: Request) {
       },
       take: POSTS_PER_PAGE,
       skip: offset,
+      include: includeAuthor,
     });
   } else if (gender) {
     // Filter by gender
@@ -90,12 +101,14 @@ export async function GET(request: Request) {
       },
       take: POSTS_PER_PAGE,
       skip: offset,
+      include: includeAuthor,
     });
   } else {
     // Fetch all posts
     posts = await prisma.post.findMany({
       take: POSTS_PER_PAGE,
       skip: offset,
+      include: includeAuthor,
     });
   }
 

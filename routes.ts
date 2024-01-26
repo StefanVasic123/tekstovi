@@ -10,7 +10,12 @@ export const publicRoutes = ['/'];
  * These routes can be accessed only if user is logged in
  * @type {string[]}
  */
-export const protectedRoutes = ['/admin', '/my-account', '/settings'];
+export const protectedRoutes = [
+  '/admin',
+  '/my-account',
+  '/settings',
+  '/logout',
+];
 
 /**
  * An array of routes that are used for auth
