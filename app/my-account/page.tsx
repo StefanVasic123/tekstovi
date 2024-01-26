@@ -4,7 +4,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Post } from '@/types.ts/post';
 import { useUserPosts } from '@/hooks/useUserPosts';
 import Layout from '@/components/layout';
-
+/*
 interface User {
   name?: string;
   email?: string;
@@ -15,8 +15,8 @@ interface User {
 interface AccountProps {
   user: User;
 }
-
-const MyAccount: React.FC<AccountProps> = () => {
+*/
+const MyAccount = () => {
   const user: any = useCurrentUser();
 
   const userPosts: any = useUserPosts();
