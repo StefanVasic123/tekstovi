@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
-import { WishListProvider } from './context';
+import { PostProvider } from './context';
 import { auth } from '@/auth';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -23,7 +23,7 @@ export default async function RootLayout({
     <SessionProvider session={session}>
       <html lang='en'>
         <body className={inter.className}>
-          <WishListProvider>{children}</WishListProvider>
+          <PostProvider>{children}</PostProvider>
         </body>
       </html>
     </SessionProvider>

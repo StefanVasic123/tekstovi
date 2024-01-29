@@ -10,7 +10,8 @@ import YouTube from 'react-youtube';
 
 import GrayHeartIcon from '@/icons/GrayHeartIcon';
 import BlueHeartIcon from '@/icons/BlueHeartIcon';
-import { useWishList } from './context';
+import { usePosts } from './context';
+import { useSearchPosts } from '@/hooks/useSearchPosts';
 
 interface Post {
   id: string;
@@ -26,7 +27,7 @@ interface Post {
 }
 
 export default function Home() {
-  const { isWishlist } = useWishList();
+  const { isWishlist, searchedPosts } = usePosts();
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const [selectedGender, setSelectedGender] = useState<string>('');
   let { posts, hasMore, fetchPosts } = useDataFetching({
@@ -134,6 +135,10 @@ export default function Home() {
       </button>
     );
   };
+
+  if (searchedPosts?.length) {
+    posts = searchedPosts;
+  }
 
   return (
     <Layout>

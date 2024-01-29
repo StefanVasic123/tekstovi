@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMedia } from 'react-use';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useSearchPosts } from '@/hooks/useSearchPosts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import {
+  faUser,
+  faBars,
+  faTimes,
+  faSearch,
+} from '@fortawesome/free-solid-svg-icons';
 import GrayHeartIcon from '@/icons/GrayHeartIcon';
 import BlueHeartIcon from '@/icons/BlueHeartIcon';
-import { useWishList } from '@/app/context';
+import { usePosts } from '@/app/context';
 
 const Navbar = () => {
-  const { isWishlist, toggleHeartClick } = useWishList();
+  const { isWishlist, toggleHeartClick } = usePosts();
+  const [isSearchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
@@ -26,6 +34,10 @@ const Navbar = () => {
     setMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const handleSearchIconClick = () => {
+    setSearchOpen((prevState) => !prevState);
+  };
+
   const closeDropdown = () => {
     setDropdownOpen(false);
   };
@@ -33,6 +45,15 @@ const Navbar = () => {
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
+
+  // Use your custom search hook to fetch data based on the searchQuery
+  const searchPosts = useSearchPosts(searchQuery);
+
+  useEffect(() => {
+    if (!isSearchOpen) {
+      setSearchQuery('');
+    }
+  }, [isSearchOpen]);
 
   return (
     <div className='w-full flex flex-col sm:flex-row justify-between items-center p-4'>
@@ -63,6 +84,28 @@ const Navbar = () => {
           isMobileMenuOpen ? 'flex-col' : 'hidden sm:flex'
         }`}
       >
+        {/* Search icon */}
+        <div className='nav-link'>
+          <button
+            onClick={handleSearchIconClick}
+            className='focus:outline-none'
+          >
+            <FontAwesomeIcon icon={faSearch} />
+          </button>
+        </div>
+
+        {/* Search input field */}
+        {isSearchOpen && (
+          <div className='nav-link'>
+            <input
+              type='text'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder='Search...'
+              className='border rounded-md p-2'
+            />
+          </div>
+        )}
         {isMobileMenuOpen && (
           <div className='flex items-center space-x-4'>
             <div className='group relative'>

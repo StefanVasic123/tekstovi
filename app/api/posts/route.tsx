@@ -21,6 +21,7 @@ export async function GET(request: Request) {
   const postsPagination = queryParams.get('postsPagination');
   const isAdminRequest = request.headers.get('x-admin-request') === 'true';
   const authorId = queryParams.get('authorId');
+  const search = queryParams.get('search');
 
   let posts: any;
   // Filter by genre
@@ -34,6 +35,17 @@ export async function GET(request: Request) {
       },
     },
   };
+
+  let searchCondition: any = {};
+
+  if (search) {
+    searchCondition = {
+      OR: [
+        { title: { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } },
+      ],
+    };
+  }
 
   if (isAdminRequest) {
     // If the request is coming from the admin page, fetch all posts
@@ -54,6 +66,7 @@ export async function GET(request: Request) {
         },
         ...(genre && { genre: genre }), // Include genre if it exists
         ...(gender && { gender: gender }), // Include gender if it exists
+        ...searchCondition, // Include search condition if it exists
       },
       take: POSTS_PER_PAGE,
       skip: offset,
@@ -106,6 +119,7 @@ export async function GET(request: Request) {
   } else {
     // Fetch all posts
     posts = await prisma.post.findMany({
+      where: searchCondition,
       take: POSTS_PER_PAGE,
       skip: offset,
       include: includeAuthor,

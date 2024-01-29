@@ -1,26 +1,25 @@
 'use client';
 import { createContext, useState, useContext } from 'react';
 
-const WishListContext = createContext<any>(undefined);
+const PostContext = createContext<any>(undefined);
 
-export const WishListProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const [isWishlist, setIsWishlist] = useState(false);
+  const [searchedPosts, setSearchedPosts] = useState([]);
 
   const toggleHeartClick = () => {
     setIsWishlist((prev) => !prev);
   };
 
   return (
-    <WishListContext.Provider value={{ isWishlist, toggleHeartClick }}>
+    <PostContext.Provider
+      value={{ isWishlist, toggleHeartClick, searchedPosts, setSearchedPosts }}
+    >
       {children}
-    </WishListContext.Provider>
+    </PostContext.Provider>
   );
 };
 
-export const useWishList = () => {
-  return useContext(WishListContext);
+export const usePosts = () => {
+  return useContext(PostContext);
 };
