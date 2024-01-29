@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMedia } from 'react-use';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useSearchPosts } from '@/hooks/useSearchPosts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -27,7 +26,7 @@ const Navbar = () => {
   const router = useRouter();
 
   const isUser = useCurrentUser();
-  const isSmallScreen = useMedia('(max-width: 767px)');
+  const isSmallScreen = window.innerWidth < 768;
 
   const handleProfileClick = () => {
     setDropdownOpen(!isDropdownOpen);
