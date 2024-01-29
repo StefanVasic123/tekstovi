@@ -6,6 +6,7 @@ const PostContext = createContext<any>(undefined);
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const [isWishlist, setIsWishlist] = useState(false);
   const [searchedPosts, setSearchedPosts] = useState([]);
+  const [searchedQuery, setSearchedQuery] = useState('');
 
   const toggleHeartClick = () => {
     setIsWishlist((prev) => !prev);
@@ -13,7 +14,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <PostContext.Provider
-      value={{ isWishlist, toggleHeartClick, searchedPosts, setSearchedPosts }}
+      value={{
+        isWishlist,
+        toggleHeartClick,
+        searchedPosts,
+        setSearchedPosts,
+        searchedQuery,
+        setSearchedQuery,
+      }}
     >
       {children}
     </PostContext.Provider>

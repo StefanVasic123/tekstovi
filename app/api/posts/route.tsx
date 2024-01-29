@@ -119,7 +119,7 @@ export async function GET(request: Request) {
   } else {
     // Fetch all posts
     posts = await prisma.post.findMany({
-      where: searchCondition,
+      where: search !== null || search !== '' ? searchCondition : undefined,
       take: POSTS_PER_PAGE,
       skip: offset,
       include: includeAuthor,

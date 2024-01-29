@@ -4,7 +4,7 @@ import { usePosts } from '@/app/context';
 
 export const useSearchPosts = (searchQuery: string) => {
   const [searchPosts, setPosts] = useState<Post[]>([]);
-  const { setSearchedPosts } = usePosts();
+  const { setSearchedPosts, setSearchedQuery } = usePosts();
   const [searchTimeout, setSearchTimeout] = useState<number | null>(null);
 
   const fetchData = async () => {
@@ -21,13 +21,14 @@ export const useSearchPosts = (searchQuery: string) => {
   };
 
   useEffect(() => {
+    setSearchedQuery(searchQuery);
+
     // Clear the previous timeout
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
 
     // Set a new timeout to make the API call after 1000ms (1 second)
-
     const timeoutId: any = setTimeout(() => {
       fetchData();
     }, 1000);
