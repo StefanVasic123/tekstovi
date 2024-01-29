@@ -56,57 +56,56 @@ const Navbar = () => {
   }, [isSearchOpen]);
 
   return (
-    <div className='w-full flex flex-col sm:flex-row justify-between items-center p-4'>
+    <div className='w-full flex sm:flex-row justify-between p-4'>
       {/* Left section */}
-      <div className='flex items-center space-x-4 hidden lg:flex'>
-        <div className='group relative'>
-          <Link href='/'>
-            <span className='mr-5'>tekstovi</span>
-          </Link>
-        </div>
+      <div className='pt-2'>
+        <Link href='/'>
+          <p className='font-black'>LYRIFY</p>
+        </Link>
       </div>
 
-      {/* Mobile menu button */}
-      <button
-        className='text-3xl cursor-pointer sm:hidden'
-        onClick={handleMobileMenuClick}
-      >
-        {isMobileMenuOpen ? (
-          <FontAwesomeIcon icon={faTimes} />
-        ) : (
-          <FontAwesomeIcon icon={faBars} />
-        )}
-      </button>
+      <div className={`${isSmallScreen && 'flex flex-col'}`}>
+        {/* Mobile menu button */}
+        <button
+          className='text-3xl cursor-pointer sm:hidden'
+          onClick={handleMobileMenuClick}
+        >
+          {isMobileMenuOpen ? (
+            <FontAwesomeIcon icon={faTimes} />
+          ) : (
+            <FontAwesomeIcon icon={faBars} />
+          )}
+        </button>
 
-      {/* Right section */}
-      <div
-        className={`flex items-center space-x-4 ${
-          isMobileMenuOpen ? 'flex-col' : 'hidden sm:flex'
-        }`}
-      >
-        {/* Search icon */}
-        <div className='nav-link'>
-          <button
-            onClick={handleSearchIconClick}
-            className='focus:outline-none'
-          >
-            <FontAwesomeIcon icon={faSearch} />
-          </button>
-        </div>
-
-        {/* Search input field */}
-        {isSearchOpen && (
+        {/* Right section */}
+        <div
+          className={`flex items-center space-x-4 ${
+            isMobileMenuOpen ? 'flex-col' : 'hidden sm:flex'
+          }`}
+        >
+          {/* Search icon */}
           <div className='nav-link'>
-            <input
-              type='text'
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder='Search...'
-              className='border rounded-md p-2'
-            />
+            <button
+              onClick={handleSearchIconClick}
+              className='focus:outline-none'
+            >
+              <FontAwesomeIcon icon={faSearch} />
+            </button>
           </div>
-        )}
-        {isMobileMenuOpen && (
+
+          {/* Search input field */}
+          {isSearchOpen && (
+            <div className='nav-link'>
+              <input
+                type='text'
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder='Search...'
+                className='border rounded-md p-2'
+              />
+            </div>
+          )}
+          {/* isMobileMenuOpen && (
           <div className='flex items-center space-x-4'>
             <div className='group relative'>
               <Link href='/'>
@@ -116,89 +115,99 @@ const Navbar = () => {
               </Link>
             </div>
           </div>
-        )}
-        <div className='nav-link'>
-          {isWishlist ? (
-            <BlueHeartIcon onClick={toggleHeartClick} />
-          ) : (
-            <GrayHeartIcon onClick={toggleHeartClick} />
-          )}
-        </div>
+        ) */}
+          <div className='nav-link'>
+            {isWishlist ? (
+              <BlueHeartIcon onClick={toggleHeartClick} />
+            ) : (
+              <GrayHeartIcon onClick={toggleHeartClick} />
+            )}
+          </div>
 
-        <Link className='nav-link' href='/how-it-works'>
-          <p
-            className={`text-center ${isSmallScreen ? '' : 'ml-4'}`}
-            onClick={closeMobileMenu}
-          >
-            How it
-            <br />
-            works
-          </p>
-        </Link>
-
-        <Link className='nav-link' href='/about-us'>
-          <p
-            className={`text-center ${isSmallScreen ? '' : 'ml-4'}`}
-            onClick={closeMobileMenu}
-          >
-            About
-            <br />
-            us
-          </p>
-        </Link>
-        <Link className='nav-link' href='/pricing'>
-          <p
-            className={`text-center ${isSmallScreen ? '' : 'ml-4'}`}
-            onClick={closeMobileMenu}
-          >
-            Pricing
-          </p>
-        </Link>
-        {isUser && (
-          <Link className='nav-link' href='/admin'>
+          <Link className='nav-link' href='/how-it-works'>
             <p
               className={`text-center ${isSmallScreen ? '' : 'ml-4'}`}
               onClick={closeMobileMenu}
             >
-              Admin
+              How it
+              <br />
+              works
             </p>
           </Link>
-        )}
-        <div
-          className='ml-4 text-center cursor-pointer relative nav-link'
-          onMouseEnter={handleProfileClick}
-          onMouseLeave={closeDropdown}
-        >
-          <button
-            onClick={() => !isUser && router.push('/auth/login')}
-            className='focus:outline-none'
-          >
-            <FontAwesomeIcon icon={faUser} />
-          </button>
-          {isDropdownOpen && isUser && (
-            <div
-              className={`${
-                !isSmallScreen && 'absolute'
-              } bg-white border rounded-md right-0`}
+
+          <Link className='nav-link' href='/about-us'>
+            <p
+              className={`text-center ${isSmallScreen ? '' : 'ml-4'}`}
+              onClick={closeMobileMenu}
             >
-              <Link href='/my-account'>
-                <p className='block p-2' onClick={closeDropdown}>
-                  My Account
-                </p>
-              </Link>
-              <Link href='/settings'>
-                <p className='block p-2' onClick={closeDropdown}>
-                  Settings
-                </p>
-              </Link>
-              <Link href='/logout'>
-                <p className='block p-2' onClick={closeDropdown}>
-                  Logout
-                </p>
-              </Link>
-            </div>
+              About
+              <br />
+              us
+            </p>
+          </Link>
+          <Link className='nav-link' href='/pricing'>
+            <p
+              className={`text-center ${isSmallScreen ? '' : 'ml-4'}`}
+              onClick={closeMobileMenu}
+            >
+              Pricing
+            </p>
+          </Link>
+          {isUser && (
+            <Link className='nav-link' href='/admin'>
+              <p
+                className={`text-center ${isSmallScreen ? '' : 'ml-4'}`}
+                onClick={closeMobileMenu}
+              >
+                Admin
+              </p>
+            </Link>
           )}
+          <div
+            className='ml-4 text-center cursor-pointer relative nav-link'
+            onMouseEnter={handleProfileClick}
+            onMouseLeave={closeDropdown}
+          >
+            <button
+              onClick={() => !isUser && router.push('/auth/login')}
+              className='focus:outline-none'
+            >
+              <FontAwesomeIcon icon={faUser} />
+            </button>
+            {isDropdownOpen && isUser && (
+              <div
+                className={`${
+                  !isSmallScreen && 'absolute'
+                } bg-white border rounded-md right-0`}
+              >
+                <Link href='/my-account'>
+                  <p className='block p-2' onClick={closeDropdown}>
+                    My Account
+                  </p>
+                </Link>
+                <Link href='/settings'>
+                  <p className='block p-2' onClick={closeDropdown}>
+                    Settings
+                  </p>
+                </Link>
+                <Link href='/logout'>
+                  <p className='block p-2' onClick={closeDropdown}>
+                    Logout
+                  </p>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
+      </div>
+      {/* Mobile Filters Button */}
+      <div className='md:hidden lg:hidden'>
+        <button
+          onClick={() => console.log('Show Filters')}
+          className='p-2 border rounded-md'
+        >
+          Filters
+        </button>
       </div>
     </div>
   );
