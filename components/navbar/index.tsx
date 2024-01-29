@@ -14,6 +14,7 @@ import {
 import GrayHeartIcon from '@/icons/GrayHeartIcon';
 import BlueHeartIcon from '@/icons/BlueHeartIcon';
 import { usePosts } from '@/app/context';
+import FilterPanel from '../filters/filterPanel';
 
 const Navbar = () => {
   const { isWishlist, toggleHeartClick } = usePosts();
@@ -21,10 +22,12 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+
   const router = useRouter();
 
   const isUser = useCurrentUser();
-  const isSmallScreen = useMedia('(max-width: 767px)'); // Adjust the max-width value as needed
+  const isSmallScreen = useMedia('(max-width: 767px)');
 
   const handleProfileClick = () => {
     setDropdownOpen(!isDropdownOpen);
@@ -203,11 +206,12 @@ const Navbar = () => {
       {/* Mobile Filters Button */}
       <div className='md:hidden lg:hidden'>
         <button
-          onClick={() => console.log('Show Filters')}
+          onClick={() => setShowSidebar((prevProps) => !prevProps)}
           className='p-2 border rounded-md'
         >
           Filters
         </button>
+        <FilterPanel show={showSidebar} setter={setShowSidebar} />
       </div>
     </div>
   );

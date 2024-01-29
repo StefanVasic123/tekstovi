@@ -7,6 +7,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const [isWishlist, setIsWishlist] = useState(false);
   const [searchedPosts, setSearchedPosts] = useState([]);
   const [searchedQuery, setSearchedQuery] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [selectedGender, setSelectedGender] = useState('');
 
   const toggleHeartClick = () => {
     setIsWishlist((prev) => !prev);
@@ -21,6 +23,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         setSearchedPosts,
         searchedQuery,
         setSearchedQuery,
+        selectedGenre,
+        selectedGender,
+        setSelectedGenre,
+        setSelectedGender,
       }}
     >
       {children}

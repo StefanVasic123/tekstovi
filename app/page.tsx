@@ -26,12 +26,18 @@ interface Post {
 }
 
 export default function Home() {
-  const { isWishlist, searchedPosts, searchedQuery } = usePosts();
+  const {
+    isWishlist,
+    searchedPosts,
+    searchedQuery,
+    selectedGenre: genreSelected,
+    selectedGender: genderSelected,
+  } = usePosts();
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const [selectedGender, setSelectedGender] = useState<string>('');
   let { posts, hasMore, fetchPosts } = useDataFetching({
-    selectedGenre: selectedGenre,
-    selectedGender: selectedGender,
+    selectedGenre: selectedGenre || genreSelected,
+    selectedGender: selectedGender || genderSelected,
     isWishlist: isWishlist,
   });
   const [postId, setPostId] = useState('');
