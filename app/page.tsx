@@ -45,7 +45,6 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(-1);
   const [postIndex, setPostIndex] = useState(-1);
   const [favoriteItems, setFavoriteItems] = useState<string[]>();
-  const [showFilters, setShowFilters] = useState(false);
 
   // Define a key for localStorage
   const localStorageKey = 'favoriteItems';
@@ -148,41 +147,6 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* Filters section */}
-      <div className='md:col-span-1 lg:col-span-1'>
-        <div className='flex md:flex-col lg:flex-col'>
-          {/* Desktop Filters Dropdown */}
-          <div className='hidden md:block lg:block'>
-            <div className='flex'>
-              <select
-                value={selectedGenre}
-                onChange={(e) => {
-                  setSelectedGenre(e.target.value);
-                }}
-                className='p-2 border rounded-md'
-              >
-                <option value=''>Obaberi žanr</option>
-                <option value='folk'>Narodne</option>
-                <option value='pop'>Pop</option>
-                <option value='dancehall'>Moderne</option>
-              </select>
-              <select
-                value={selectedGender}
-                onChange={(e) => {
-                  setSelectedGender(e.target.value);
-                }}
-                className='p-2 border rounded-md ml-2'
-              >
-                <option value=''>Odaberi pol</option>
-                <option value='male'>Muški</option>
-                <option value='female'>Ženski</option>
-                <option value='duet'>Duet</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <InfiniteScroll
         dataLength={posts.length}
         next={fetchMoreData}

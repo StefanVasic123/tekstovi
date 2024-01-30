@@ -16,7 +16,14 @@ import { usePosts } from '@/app/context';
 import FilterPanel from '../filters/filterPanel';
 
 const Navbar = () => {
-  const { isWishlist, toggleHeartClick } = usePosts();
+  const {
+    isWishlist,
+    toggleHeartClick,
+    selectedGenre,
+    selectedGender,
+    setSelectedGenre,
+    setSelectedGender,
+  } = usePosts();
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -60,12 +67,48 @@ const Navbar = () => {
   return (
     <div className='w-full flex sm:flex-row justify-between p-4'>
       {/* Left section */}
-      <div className='pt-2'>
-        <Link href='/'>
-          <p className='font-black'>LYRIFY</p>
-        </Link>
-      </div>
+      <div className='flex'>
+        <div className='pt-2'>
+          <Link href='/'>
+            <p className='font-black'>LYRIFY</p>
+          </Link>
+        </div>
 
+        {/* Filters section */}
+        <div className='md:col-span-1 lg:col-span-1 pl-2'>
+          <div className='flex md:flex-col lg:flex-col'>
+            {/* Desktop Filters Dropdown */}
+            <div className='hidden md:block lg:block'>
+              <div className='flex'>
+                <select
+                  value={selectedGenre}
+                  onChange={(e) => {
+                    setSelectedGenre(e.target.value);
+                  }}
+                  className='p-2 border rounded-md'
+                >
+                  <option value=''>žanr</option>
+                  <option value='folk'>Narodne</option>
+                  <option value='pop'>Pop</option>
+                  <option value='dancehall'>Moderne</option>
+                </select>
+                <select
+                  value={selectedGender}
+                  onChange={(e) => {
+                    setSelectedGender(e.target.value);
+                  }}
+                  className='p-2 border rounded-md ml-2'
+                >
+                  <option value=''>vokal</option>
+                  <option value='male'>Muški</option>
+                  <option value='female'>Ženski</option>
+                  <option value='duet'>Duet</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className={`${isSmallScreen && 'flex flex-col'}`}>
         {/* Mobile menu button */}
         <button
