@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useSearchPosts } from '@/hooks/useSearchPosts';
@@ -10,6 +11,7 @@ import {
   faTimes,
   faSearch,
 } from '@fortawesome/free-solid-svg-icons';
+import LogoBlack from '@/icons/logo-black.png';
 import GrayHeartIcon from '@/icons/GrayHeartIcon';
 import BlueHeartIcon from '@/icons/BlueHeartIcon';
 import { usePosts } from '@/app/context';
@@ -65,17 +67,28 @@ const Navbar = () => {
   }, [isSearchOpen]);
 
   return (
-    <div className='w-full flex sm:flex-row justify-between p-4'>
+    <div
+      className={`w-full flex sm:flex-row ${
+        isMobileMenuOpen ? 'justify-center' : 'justify-between'
+      } px-4 pt-2 pb-4 items-center`}
+    >
       {/* Left section */}
       <div className='flex'>
-        <div className='pt-2'>
-          <Link href='/'>
-            <p className='font-black'>LYRIFY</p>
-          </Link>
-        </div>
+        {isMobileMenuOpen ? null : (
+          <div>
+            <Link href='/'>
+              <Image
+                src={LogoBlack}
+                alt='lyrify logo image'
+                width={isSmallScreen ? '70' : '100'}
+                height={isSmallScreen ? '70' : '100'}
+              />
+            </Link>
+          </div>
+        )}
 
         {/* Filters section */}
-        <div className='md:col-span-1 lg:col-span-1 pl-2'>
+        <div className='md:col-span-1 lg:col-span-1 flex items-center'>
           <div className='flex md:flex-col lg:flex-col'>
             {/* Desktop Filters Dropdown */}
             <div className='hidden md:block lg:block'>
@@ -124,7 +137,7 @@ const Navbar = () => {
 
         {/* Right section */}
         <div
-          className={`flex items-center space-x-4 ${
+          className={`flex items-center h-full space-x-4 ${
             isMobileMenuOpen ? 'flex-col' : 'hidden sm:flex'
           }`}
         >
@@ -161,7 +174,7 @@ const Navbar = () => {
             </div>
           </div>
         ) */}
-          <div className='nav-link'>
+          <div className={`${isSmallScreen ? '' : 'ml-4'} nav-link`}>
             {isWishlist ? (
               <BlueHeartIcon onClick={toggleHeartClick} />
             ) : (
@@ -246,15 +259,17 @@ const Navbar = () => {
         </div>
       </div>
       {/* Mobile Filters Button */}
-      <div className='md:hidden lg:hidden'>
-        <button
-          onClick={() => setShowSidebar((prevProps) => !prevProps)}
-          className='p-2 border rounded-md'
-        >
-          Filters
-        </button>
-        <FilterPanel show={showSidebar} setter={setShowSidebar} />
-      </div>
+      {isMobileMenuOpen ? null : (
+        <div className='md:hidden lg:hidden'>
+          <button
+            onClick={() => setShowSidebar((prevProps) => !prevProps)}
+            className='p-2 border rounded-md'
+          >
+            Filters
+          </button>
+          <FilterPanel show={showSidebar} setter={setShowSidebar} />
+        </div>
+      )}
     </div>
   );
 };
