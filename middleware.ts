@@ -41,11 +41,9 @@ export default auth((req) => {
     return null;
   }
 */
-  console.log('isLoggedIn test: ', req.auth, !!req.auth);
+
   if (isProtected) {
-    console.log('isLoggedIn1 test: ', req.auth, !!req.auth);
     if (!isLoggedIn) {
-      console.log('isLoggedIn2 test: ', req.auth, !!req.auth);
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
     }
     return null;
