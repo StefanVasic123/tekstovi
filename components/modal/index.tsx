@@ -6,6 +6,8 @@ interface ModalData {
   content: string;
   genre: string;
   gender: string;
+  language: string;
+  role: string;
   date: string;
   voiceCover: string;
   authorId: string;
@@ -32,6 +34,8 @@ const Modal: React.FC<ModalProps> = ({
     voiceCover: modalId === 'update' ? originalData.voiceCover : '',
     genre: modalId === 'update' ? originalData.genre : '',
     gender: modalId === 'update' ? originalData.gender : '',
+    language: modalId === 'update' ? originalData.language : '',
+    role: modalId === 'update' ? originalData.role : '',
     date: modalId === 'update' ? originalData.date : '',
     authorId: '',
   });
@@ -57,6 +61,20 @@ const Modal: React.FC<ModalProps> = ({
     setFormData({
       ...formData,
       gender: e,
+    });
+  };
+
+  const handleSelectLanguage = (e: any) => {
+    setFormData({
+      ...formData,
+      language: e,
+    });
+  };
+
+  const handleSelectRole = (e: any) => {
+    setFormData({
+      ...formData,
+      role: e,
     });
   };
 
@@ -151,6 +169,35 @@ const Modal: React.FC<ModalProps> = ({
               <option value='male'>Muški</option>
               <option value='female'>Ženski</option>
               <option value='duet'>Duet</option>
+            </select>
+
+            <select
+              name='language'
+              value={formData.language}
+              onChange={(e: any) => handleSelectLanguage(e.target.value)}
+              className='w-full outline-none border-none'
+            >
+              <option value='' disabled>
+                Language
+              </option>
+              <option value='eng'>ENG</option>
+              <option value='esp'>ESP</option>
+              <option value='ger'>GER</option>
+              <option value='fra'>FRA</option>
+            </select>
+
+            <select
+              name='role'
+              value={formData.role}
+              onChange={(e: any) => handleSelectRole(e.target.value)}
+              className='w-full outline-none border-none'
+            >
+              <option value='' disabled>
+                Role
+              </option>
+              <option value='lyricist'>Lyricist</option>
+              <option value='producer'>Producer</option>
+              <option value='lyricist/producer'>Lyricist / Producer</option>
             </select>
 
             <input

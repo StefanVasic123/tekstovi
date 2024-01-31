@@ -161,7 +161,7 @@ export default function Home() {
           ))
         }
       >
-        <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
+        <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-5'>
           {posts.length > 0 ? (
             posts.map((item, index) => {
               return (

@@ -16,6 +16,12 @@ model Post {
   gender      String?     @default("male")
   date        String
   published   Boolean    @default(false)
+  certified   Boolean    @default(false)
+  paid        Boolean    @default(false)
+  free        Boolean    @default(false)
+  promoted    Boolean    @default(false)
+  language    String?
+  role        String?
   voiceCover  String?    
   author      User?      @relation(fields: [authorId], references: [id])
   authorId    String?
@@ -23,16 +29,22 @@ model Post {
 }
 
 enum UserRole {
-  ADMIN
   USER
+  ADMIN
+  LYRICIST
+  PRODUCER
+  LYRICIST_PRODUCER
 }
 
 model User {
-   id           String  @id  @default(cuid())
+  id            String    @id  @default(cuid())
   name          String?
   email         String?   @unique
   password      String?
-  role          UserRole @default(USER)
+  role          UserRole  @default(LYRICIST)
+  language      String?
+  country       String?
+  state         String?
   emailVerified DateTime?
   image         String?
   accounts      Account[]
@@ -48,6 +60,7 @@ model Account {
   type               String
   provider           String
   providerAccountId  String
+  promoted           Boolean   @default(false)
   refresh_token      String?  @db.Text
   access_token       String?  @db.Text
   expires_at         Int?

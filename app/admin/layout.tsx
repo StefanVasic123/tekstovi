@@ -1,5 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Layout from '../../components/layout';
 import Modal from '../../components/modal';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
@@ -18,6 +20,11 @@ const AdminLayout = () => {
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
 
   const currentUser: any = useCurrentUser();
+
+  const notifyCreatePost = (title: string) =>
+    toast(`Song ${title} uploaded to Lyrify!`);
+  const notifyUpdatePost = (title: string) =>
+    toast(`Song ${title} updated successfully!`);
 
   const fetchData = async () => {
     const queryParams = new URLSearchParams({
@@ -50,9 +57,15 @@ const AdminLayout = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-      });
-      // Refresh the list of posts after creation
-      fetchData();
+      })
+        .then((res: any) => {
+          // Refresh the list of posts after creation
+          fetchData();
+          return res.json();
+        })
+        .then((obj: any) => {
+          notifyCreatePost(obj.title);
+        });
     } catch (error) {
       console.error(error);
     }
@@ -76,7 +89,17 @@ const AdminLayout = () => {
   };
 
   const handleUpdate = (post: Post) => {
-    const { id, title, content, genre, gender, date, voiceCover } = post;
+    const {
+      id,
+      title,
+      content,
+      genre,
+      gender,
+      language,
+      role,
+      date,
+      voiceCover,
+    } = post;
     setId(id);
     setTitle(title);
     setUpdateData({
@@ -85,6 +108,8 @@ const AdminLayout = () => {
       content,
       genre,
       gender,
+      language,
+      role,
       date,
       voiceCover,
     });
@@ -92,18 +117,35 @@ const AdminLayout = () => {
   };
 
   const handleUpdateSubmit = async (formData: any) => {
-    const { title, content, genre, gender, voiceCover, date } = formData;
+    const { title, content, genre, gender, language, role, voiceCover, date } =
+      formData;
     setUpdateError('');
     if (id) {
       // send a request to the server to update the post.
       try {
-        const body = { title, content, genre, gender, voiceCover, date };
+        const body = {
+          title,
+          content,
+          genre,
+          gender,
+          language,
+          role,
+          voiceCover,
+          date,
+        };
         await fetch('/api/posts/' + id, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
-        });
-        fetchData(); // Refresh the list of posts after updating
+        })
+          .then((res: any) => {
+            fetchData();
+            return res.json();
+          })
+          .then((obj: any) => {
+            notifyUpdatePost(obj.title);
+          });
+        // Refresh the list of posts after updating
       } catch (error) {
         console.error(error);
       }
@@ -262,7 +304,7 @@ const AdminLayout = () => {
           />
         </div>
       )}
-
+      <ToastContainer />
       {updateError && <div>{updateError}</div>}
     </Layout>
   );

@@ -7,6 +7,9 @@ interface RequestBody {
   title: string;
   content: string;
   genre: string;
+  gender: string;
+  language: string;
+  role: string;
   date: string;
   voiceCover: string;
   author: object;
@@ -151,6 +154,9 @@ export async function POST(request: Request) {
         title: body.title,
         content: body.content,
         genre: body.genre,
+        gender: body.gender,
+        language: body.language,
+        role: body.role,
         date: body.date,
         voiceCover: body.voiceCover,
         listPlaceId: newListPlaceId,

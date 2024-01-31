@@ -4,6 +4,8 @@ export interface Post {
   content: string;
   genre: string;
   gender: string;
+  language: string;
+  role: string;
   date: string;
   voiceCover: string;
   video: string;

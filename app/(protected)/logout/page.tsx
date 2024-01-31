@@ -1,4 +1,5 @@
 import { auth, signOut } from '@/auth';
+import { redirect } from 'next/navigation';
 
 const LogoutPage = async () => {
   const session: any = await auth();
@@ -9,7 +10,7 @@ const LogoutPage = async () => {
         action={async () => {
           'use server';
 
-          await signOut();
+          await signOut().then(() => redirect('/login'));
         }}
       >
         <button>Sign Out</button>
