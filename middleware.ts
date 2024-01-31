@@ -47,13 +47,16 @@ export default auth((req) => {
     }
     return null;
   }
-
+  /*
   if (isApiLogout) {
+    console.log('outside !isLoggedIn'); // nothing rendered
     if (!isLoggedIn) {
+      console.log('inside !isLoggedIn'); // nothing rendered
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
     }
     return null;
   }
+  */
   /*
   if (!isLoggedIn && !isPublicRoute) {
     if (isLoginRoute) {

@@ -10,7 +10,7 @@ const LogoutPage = async () => {
         action={async () => {
           'use server';
 
-          await signOut().then(() => redirect('/login'));
+          await signOut();
         }}
       >
         <button>Sign Out</button>
