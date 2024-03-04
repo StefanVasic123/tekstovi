@@ -5,12 +5,14 @@ interface UseDataFetchingProps {
   selectedGenre?: string;
   selectedGender?: string;
   isWishlist?: boolean;
+  countryPrefix: string;
 }
 
 const useDataFetching = ({
   selectedGenre,
   selectedGender,
   isWishlist,
+  countryPrefix,
 }: UseDataFetchingProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [hasMore, setHasMore] = useState(true);
@@ -21,7 +23,7 @@ const useDataFetching = ({
   const fetchPosts = async () => {
     try {
       // Conditionally include genre and gender parameters
-      const url = `/api/posts?postsPagination=${postsPagination}${
+      const url = `${countryPrefix}/api/posts?postsPagination=${postsPagination}${
         selectedGenre ? `&genre=${selectedGenre}` : ''
       }${selectedGender ? `&gender=${selectedGender}` : ''}`;
 
@@ -42,7 +44,7 @@ const useDataFetching = ({
 
   const fetchFilteredPosts = async (isWishlist: boolean | undefined) => {
     try {
-      let url = `/api/posts?postsPagination=1${
+      let url = `${countryPrefix}/api/posts?postsPagination=1${
         selectedGenre ? `&genre=${selectedGenre}` : ''
       }${selectedGender ? `&gender=${selectedGender}` : ''}`;
 

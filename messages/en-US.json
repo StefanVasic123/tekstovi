@@ -1,0 +1,14 @@
+{
+  "Index": {
+    "title": "Hello world!",
+    "genre": "genre"
+  },
+  "LocaleSwitcher": {
+    "switchLocale": "en",
+    "en-US": "en-US",
+    "sr_RS": "sr_RS",
+    "de": "de",
+    "fr": "fr",
+    "es": "es"
+  }
+}

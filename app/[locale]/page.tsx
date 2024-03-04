@@ -1,16 +1,17 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import useDataFetching from '@/hooks/useDataFetching';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
-import Layout from '../components/layout';
+import Layout from '../../components/layout';
 
 import Link from 'next/link';
 import YouTube from 'react-youtube';
 
 import GrayHeartIcon from '@/icons/GrayHeartIcon';
 import BlueHeartIcon from '@/icons/BlueHeartIcon';
-import { usePosts } from './context';
+import { usePosts } from '../context';
 
 interface Post {
   id: string;
@@ -33,12 +34,14 @@ export default function Home() {
     selectedGenre: genreSelected,
     selectedGender: genderSelected,
   } = usePosts();
+  const countryPrefix = usePathname();
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const [selectedGender, setSelectedGender] = useState<string>('');
   let { posts, hasMore, fetchPosts } = useDataFetching({
     selectedGenre: selectedGenre || genreSelected,
     selectedGender: selectedGender || genderSelected,
     isWishlist: isWishlist,
+    countryPrefix,
   });
   const [postId, setPostId] = useState('');
   const [videoId, setVideoId] = useState('');

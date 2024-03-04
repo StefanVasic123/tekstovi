@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -16,6 +17,7 @@ import GrayHeartIcon from '@/icons/GrayHeartIcon';
 import BlueHeartIcon from '@/icons/BlueHeartIcon';
 import { usePosts } from '@/app/context';
 import FilterPanel from '../filters/filterPanel';
+import LanguageSwitcher from '../languageSwitcher';
 
 const Navbar = () => {
   const {
@@ -31,6 +33,7 @@ const Navbar = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const t = useTranslations('Index');
 
   const router = useRouter();
 
@@ -100,7 +103,7 @@ const Navbar = () => {
                   }}
                   className='p-2 border rounded-md'
                 >
-                  <option value=''>žanr</option>
+                  <option value=''>{t('genre')}</option>
                   <option value='folk'>Narodne</option>
                   <option value='pop'>Pop</option>
                   <option value='dancehall'>Moderne</option>
@@ -163,6 +166,7 @@ const Navbar = () => {
               />
             </div>
           )}
+          <LanguageSwitcher />
           {/* isMobileMenuOpen && (
           <div className='flex items-center space-x-4'>
             <div className='group relative'>

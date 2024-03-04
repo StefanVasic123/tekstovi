@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Layout from '../../components/layout';
-import Modal from '../../components/modal';
+import Layout from '@/components/layout';
+import Modal from '@/components/modal';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
-import { StrictModeDroppable } from '../../components/helpers/StrictModeDroppable';
+import { StrictModeDroppable } from '@/components/helpers/StrictModeDroppable';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Post } from '@/types.ts/post';
 
@@ -20,6 +20,7 @@ const AdminLayout = () => {
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
 
   const currentUser: any = useCurrentUser();
+  console.log('currentUser: ', currentUser);
 
   const notifyCreatePost = (title: string) =>
     toast(`Song ${title} uploaded to Lyrify!`);
@@ -31,6 +32,7 @@ const AdminLayout = () => {
       authorId: currentUser?.id,
     });
 
+    console.log('queryParams: ', queryParams);
     try {
       const response = await fetch(`/api/posts?${queryParams.toString()}`, {
         headers: {
@@ -48,12 +50,14 @@ const AdminLayout = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (currentUser) {
+      fetchData();
+    }
+  }, [currentUser]);
 
   const handleSubmit = async (data: Object) => {
     try {
-      await fetch('/api/posts', {
+      await fetch('/api/posts/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

@@ -1,5 +1,6 @@
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 interface ModalData {
   title: string;
@@ -28,13 +29,14 @@ const Modal: React.FC<ModalProps> = ({
   toggleModal,
 }) => {
   const isUser = useCurrentUser();
+  const countryPrefix = usePathname().split('/')[1];
   const [formData, setFormData] = useState<ModalData>({
     title: modalId === 'update' ? originalData.title : '',
     content: modalId === 'update' ? originalData.content : '',
     voiceCover: modalId === 'update' ? originalData.voiceCover : '',
     genre: modalId === 'update' ? originalData.genre : '',
     gender: modalId === 'update' ? originalData.gender : '',
-    language: modalId === 'update' ? originalData.language : '',
+    language: modalId === 'update' ? originalData.language : countryPrefix,
     role: modalId === 'update' ? originalData.role : '',
     date: modalId === 'update' ? originalData.date : '',
     authorId: '',
@@ -180,10 +182,11 @@ const Modal: React.FC<ModalProps> = ({
               <option value='' disabled>
                 Language
               </option>
-              <option value='eng'>ENG</option>
-              <option value='esp'>ESP</option>
-              <option value='ger'>GER</option>
-              <option value='fra'>FRA</option>
+              <option value='en-US'>EN-US</option>
+              <option value='es'>ES</option>
+              <option value='de'>DE</option>
+              <option value='fr'>FR</option>
+              <option value='sr_RS'>SR</option>
             </select>
 
             <select

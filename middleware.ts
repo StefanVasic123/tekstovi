@@ -1,7 +1,15 @@
 import NextAuth from 'next-auth';
 import authConfig from './auth.config';
+import { NextResponse } from 'next/server';
 
-const { auth } = NextAuth(authConfig);
+// NextAuth(authConfig) return auth ... that needs to be exported as middleware
+import createIntlMiddleware from 'next-intl/middleware';
+import { NextRequest } from 'next/server';
+
+export const { auth } = NextAuth(authConfig);
+
+const locales = ['en-US', 'sr_RS', 'de', 'fr', 'es'];
+
 import {
   publicRoutes,
   authRoutes,
@@ -12,60 +20,42 @@ import {
   protectedRoutes,
 } from '@/routes';
 
-export default auth((req) => {
-  const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-  const isApiLogout = apiLogout.includes(nextUrl.pathname);
-  const isProtected = protectedRoutes.includes(nextUrl.pathname);
-  const isLoginRoute = loginRoute.includes(nextUrl.pathname);
-
-  if (isApiAuthRoute) {
-    return null;
-  }
-
-  // if currently on auth route
-  /**
-   * problem on Vercel production
-   * auth/login fetch/Redirect 302 status
-   * TODO solution for auth routes when user is logged in
-   * solution: conditionally render form if user is not logged in and back page if does
-   */
-  /*  if (isAuthRoute) {
-    if (isLoggedIn) {
-      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
-    }
-    return null;
-  }
-*/
-
-  if (isProtected) {
-    if (!isLoggedIn) {
-      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
-    }
-    return null;
-  }
-  /*
-  if (isApiLogout) {
-    console.log('outside !isLoggedIn'); // nothing rendered
-    if (!isLoggedIn) {
-      console.log('inside !isLoggedIn'); // nothing rendered
-      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
-    }
-    return null;
-  }
-  */
-  /*
-  if (!isLoggedIn && !isPublicRoute) {
-    if (isLoginRoute) {
-      return Response.redirect(new URL('/auth/login', nextUrl));
-    }
-    return null;
-  } */
+const intlMiddleware = createIntlMiddleware({
+  locales,
+  localePrefix: 'always',
+  defaultLocale: 'en-US',
 });
+
+export default async function middleware(req: NextRequest) {
+  const { pathname, origin } = req.nextUrl;
+  // Init intl middleware response
+  const intlResponse = intlMiddleware(req);
+
+  // APIs handle their own auth, but they still need locale data
+  if (req.nextUrl.pathname.includes('api')) {
+    return intlResponse;
+  }
+  // handle public routes...
+  // private routes here
+  const session = await auth();
+  if (session !== null) {
+    return intlResponse;
+  } else {
+    return intlResponse;
+  }
+
+  // redirect to sign in if unauthorized
+  /* const nextUrl = req.nextUrl.clone();
+  nextUrl.pathname = '/';
+  */
+  // When using redirect Next.js expects a 3xx status code otherwise it errors out
+  /*
+  return NextResponse.redirect(`${origin}/`, {
+    ...intlResponse,
+    status: 308,
+  });
+  */
+}
 
 // every route will invoke middleware
 export const config = {
