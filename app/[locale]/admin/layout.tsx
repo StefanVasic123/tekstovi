@@ -20,7 +20,6 @@ const AdminLayout = () => {
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
 
   const currentUser: any = useCurrentUser();
-  console.log('currentUser: ', currentUser);
 
   const notifyCreatePost = (title: string) =>
     toast(`Song ${title} uploaded to Lyrify!`);
@@ -32,7 +31,6 @@ const AdminLayout = () => {
       authorId: currentUser?.id,
     });
 
-    console.log('queryParams: ', queryParams);
     try {
       const response = await fetch(`/api/posts?${queryParams.toString()}`, {
         headers: {

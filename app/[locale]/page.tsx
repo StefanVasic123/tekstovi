@@ -11,7 +11,10 @@ import YouTube from 'react-youtube';
 
 import GrayHeartIcon from '@/icons/GrayHeartIcon';
 import BlueHeartIcon from '@/icons/BlueHeartIcon';
+import LikeButton from '@/icons/LikeButton';
+import CommentIcon from '@/icons/CommentIcon';
 import { usePosts } from '../context';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface Post {
   id: string;
@@ -24,6 +27,7 @@ interface Post {
   video: string;
   index: number;
   listPlaceId: number;
+  likeCount: number | undefined;
 }
 
 export default function Home() {
@@ -37,7 +41,7 @@ export default function Home() {
   const countryPrefix = usePathname();
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const [selectedGender, setSelectedGender] = useState<string>('');
-  let { posts, hasMore, fetchPosts } = useDataFetching({
+  let { posts, setPosts, hasMore, fetchPosts } = useDataFetching({
     selectedGenre: selectedGenre || genreSelected,
     selectedGender: selectedGender || genderSelected,
     isWishlist: isWishlist,
@@ -52,6 +56,8 @@ export default function Home() {
   // Define a key for localStorage
   const localStorageKey = 'favoriteItems';
 
+  const user: any = useCurrentUser();
+
   const fetchMoreData = () => {
     fetchPosts();
   };
@@ -60,6 +66,43 @@ export default function Home() {
     const storedItems = localStorage.getItem(localStorageKey);
     setFavoriteItems(storedItems ? JSON.parse(storedItems) : []);
   }, [selectedGenre, selectedGender]);
+
+  // Function to handle liking or unliking a post
+  const HandleLikePost = async (postId: string, userId: string) => {
+    const data = { postId, userId };
+    try {
+      const response = await fetch(`/api/posts/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        // Parse the response body as JSON
+        const responseData = await response.json();
+
+        // Update the like count for the specific post
+        const updatedPosts = posts.map((post) => {
+          if (post.id === postId) {
+            // Update the like count based on the response
+            return {
+              ...post,
+              likeCount: responseData.likeCount,
+            };
+          }
+          return post;
+        });
+
+        // Update the 'posts' variable with the updated array
+
+        setPosts(updatedPosts);
+      } else {
+        console.error('Error:', response.statusText);
+      }
+    } catch (error: any) {
+      console.error('Error:', error.message);
+    }
+  };
 
   const processContent = (content: string, link: string) => {
     // Split the content by newline characters
@@ -166,13 +209,13 @@ export default function Home() {
       >
         <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-5'>
           {posts.length > 0 ? (
-            posts.map((item, index) => {
+            posts.map((item: any, index) => {
               return (
                 <div
                   key={Math.random()}
                   className='bg-white p-4 shadow-md hover:shadow-lg cursor-pointer text-center flex flex-col h-full'
                 >
-                  <div className='mb-4'>
+                  <div className='mb-2'>
                     <div className='flex items-center justify-center mb-2'>
                       <h3 className='text-xl font-semibold'>{item.title}</h3>
                       {item.voiceCover && (
@@ -228,6 +271,18 @@ export default function Home() {
                       </div>
                     )}
                     {processContent(item.content, `/posts/${item.id}`)}
+                  </div>
+                  <div className='flex justify-center mt-auto mb-2'>
+                    <LikeButton
+                      onClick={() => {
+                        HandleLikePost(item?.id, user?.id);
+                      }}
+                    />
+                    {/* Display like count */}
+                    <span>&nbsp;{item.likeCount}</span>
+                    <div className='w-4'></div>{' '}
+                    {/* Adding space between icons */}
+                    <CommentIcon onClick={() => {}} commentCount={1} />
                   </div>
                   <div className='mt-auto'>
                     <div className='flex justify-between'>

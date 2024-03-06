@@ -21,11 +21,13 @@ model Post {
   free        Boolean    @default(false)
   promoted    Boolean    @default(false)
   language    String?
+  likeCount   Int       @default(0)
   role        String?
   voiceCover  String?    
   author      User?      @relation(fields: [authorId], references: [id])
   authorId    String?
   listPlaceId Int        @default(0)
+  likes       Like[]
 }
 
 enum UserRole {
@@ -51,6 +53,7 @@ model User {
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   posts         Post[]
+  likes       Like[]
   @@map(name: "users")
 }
 
@@ -90,4 +93,12 @@ model PasswordResetToken {
   expires DateTime
 
   @@unique([email, token])
+}
+
+model Like {
+  id      String  @id @default(cuid())
+  userId  String
+  postId  String
+  user    User    @relation(fields: [userId], references: [id])
+  post    Post    @relation(fields: [postId], references: [id])
 }

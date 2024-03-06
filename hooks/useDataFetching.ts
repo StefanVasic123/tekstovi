@@ -84,7 +84,7 @@ const useDataFetching = ({
     fetchFilteredPosts(isWishlist);
   }, [selectedGenre, selectedGender, isWishlist]);
 
-  return { posts, hasMore, fetchPosts };
+  return { posts, setPosts, hasMore, fetchPosts };
 };
 
 export default useDataFetching;
