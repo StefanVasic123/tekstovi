@@ -28,6 +28,7 @@ model Post {
   authorId    String?
   listPlaceId Int        @default(0)
   likes       Like[]
+  comments Comment[]
 }
 
 enum UserRole {
@@ -54,6 +55,8 @@ model User {
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   posts         Post[]
   likes       Like[]
+  comments  Comment[]
+  replies       Reply[]
   @@map(name: "users")
 }
 
@@ -101,4 +104,25 @@ model Like {
   postId  String
   user    User    @relation(fields: [userId], references: [id])
   post    Post    @relation(fields: [postId], references: [id])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+  replies   Reply[] @relation("ReplyToComment")
+}
+
+model Reply {
+  id          String   @id @default(cuid())
+  commentId   String
+  userId      String
+  content     String
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+  comment Comment @relation("ReplyToComment", fields: [commentId], references: [id]) 
 }

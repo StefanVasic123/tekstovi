@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Layout from '@/components/layout';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const CopyToClipboardIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props
@@ -38,12 +39,97 @@ interface Post {
   voiceCover: string;
 }
 
+const CommentInput: React.FC<{ onSubmit: (comment: string) => void }> = ({
+  onSubmit,
+}) => {
+  const [comment, setComment] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onSubmit(comment);
+    setComment('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className='mb-4'>
+      <textarea
+        value={comment}
+        onChange={handleChange}
+        placeholder='Enter your comment...'
+        className='w-full border rounded-md p-2'
+        rows={3}
+        required
+      />
+      <button
+        type='submit'
+        className='bg-blue-500 text-white py-2 px-4 mt-2 rounded-md hover:bg-blue-600 transition duration-300'
+      >
+        Post Comment
+      </button>
+    </form>
+  );
+};
+
+const Comment: React.FC<{ author: string; text: string }> = ({
+  author,
+  text,
+}) => {
+  return (
+    <div className='flex items-center mb-4'>
+      <div className='w-1/4'>
+        {/* User Avatar */}
+        <div className='w-10 h-10 bg-gray-300 rounded-full' />
+      </div>
+      <div className='w-3/4'>
+        {/* Comment Content */}
+        <div className='font-semibold'>{author}</div>
+        <div className=''>{text}</div>
+      </div>
+    </div>
+  );
+};
+
 const PostPage: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [comments, setComments] = useState<string[]>([]);
+  const [newComment, setNewComment] = useState('');
+
   const path = usePathname();
   const parts = path.split('/');
   const id = parts[parts.length - 1];
+
+  const user = useCurrentUser();
+
+  const handleSubmitComment = async () => {
+    try {
+      const response = await fetch(`/api/posts/comment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          postId: id,
+          userId: user?.id,
+          content: newComment,
+        }),
+      });
+
+      if (response.ok) {
+        const data: Comment = await response.json();
+        setComments([...(comments as any), data]);
+        setNewComment('');
+      } else {
+        console.error('Failed to post comment:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error posting comment:', error);
+    }
+  };
 
   useEffect(() => {
     // Fetch the post data by id
@@ -63,6 +149,24 @@ const PostPage: React.FC = () => {
 
     if (id) {
       fetchData();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await fetch(`/api/posts/comment/${id}`);
+        if (response.ok) {
+          const data: Comment[] = await response.json();
+          setComments(data as any);
+        }
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+
+    if (id) {
+      fetchComments();
     }
   }, [id]);
 
@@ -129,6 +233,41 @@ const PostPage: React.FC = () => {
     <Layout>
       <div className='my-6'>{videoFrame}</div>
       <div className='my-6'>{postContent}</div>
+      <div className='my-6'>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmitComment();
+          }}
+          className='mb-4'
+        >
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder='Enter your comment...'
+            className='w-full border rounded-md p-2'
+            rows={3}
+            required
+          />
+          <button
+            type='submit'
+            className='bg-blue-500 text-white py-2 px-4 mt-2 rounded-md hover:bg-blue-600 transition duration-300'
+          >
+            Post Comment
+          </button>
+        </form>
+        {comments && comments.length > 0 ? (
+          comments.map((comment: any) => (
+            <Comment
+              key={comment.id}
+              author={comment.userId}
+              text={comment.content}
+            />
+          ))
+        ) : (
+          <p>No comments available.</p>
+        )}
+      </div>
     </Layout>
   );
 };
