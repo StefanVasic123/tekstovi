@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import useDataFetching from '@/hooks/useDataFetching';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -53,6 +53,8 @@ export default function Home() {
   const [postIndex, setPostIndex] = useState(-1);
   const [favoriteItems, setFavoriteItems] = useState<string[]>();
 
+  const router = useRouter();
+
   // Define a key for localStorage
   const localStorageKey = 'favoriteItems';
 
@@ -102,6 +104,10 @@ export default function Home() {
     } catch (error: any) {
       console.error('Error:', error.message);
     }
+  };
+
+  const handleCommentClick = (postId: string) => {
+    return router.push(`/posts/${postId}`);
   };
 
   const processContent = (content: string, link: string) => {
@@ -278,11 +284,14 @@ export default function Home() {
                         HandleLikePost(item?.id, user?.id);
                       }}
                     />
-                    {/* Display like count */}
                     <span>&nbsp;{item.likeCount}</span>
                     <div className='w-4'></div>{' '}
-                    {/* Adding space between icons */}
-                    <CommentIcon onClick={() => {}} commentCount={1} />
+                    <CommentIcon
+                      onClick={() => {
+                        handleCommentClick(item.id);
+                      }}
+                      commentCount={item.commentCount}
+                    />
                   </div>
                   <div className='mt-auto'>
                     <div className='flex justify-between'>

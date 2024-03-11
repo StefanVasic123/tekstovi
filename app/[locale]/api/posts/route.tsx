@@ -42,6 +42,14 @@ export async function GET(request: Request) {
       },
     };
 
+    const includeComments = {
+      comments: {
+        select: {
+          id: true,
+        },
+      },
+    };
+
     let searchCondition: any = {};
 
     if (search) {
@@ -75,7 +83,7 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: includeAuthor,
+        include: { ...includeAuthor, ...includeComments },
       });
     } else if (wishlist) {
       const wishlistItems = JSON.parse(wishlist);
@@ -87,7 +95,7 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: includeAuthor,
+        include: { ...includeAuthor, ...includeComments },
       });
     } else if (genre && gender) {
       posts = await prisma.post.findMany({
@@ -98,7 +106,7 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: includeAuthor,
+        include: { ...includeAuthor, ...includeComments },
       });
     } else if (genre) {
       posts = await prisma.post.findMany({
@@ -108,7 +116,7 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: includeAuthor,
+        include: { ...includeAuthor, ...includeComments },
       });
     } else if (gender) {
       posts = await prisma.post.findMany({
@@ -118,7 +126,7 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: includeAuthor,
+        include: { ...includeAuthor, ...includeComments },
       });
     } else {
       posts = await prisma.post.findMany({
@@ -128,9 +136,14 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: includeAuthor,
+        include: { ...includeAuthor, ...includeComments },
       });
     }
+
+    posts = posts.map((post: any) => ({
+      ...post,
+      commentCount: post.comments.length,
+    }));
 
     return NextResponse.json(posts);
   } catch (error: any) {

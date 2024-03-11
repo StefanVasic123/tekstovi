@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { MouseEventHandler, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Layout from '@/components/layout';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -74,10 +74,12 @@ const CommentInput: React.FC<{ onSubmit: (comment: string) => void }> = ({
   );
 };
 
-const Comment: React.FC<{ author: string; text: string }> = ({
-  author,
-  text,
-}) => {
+const Comment: React.FC<{
+  author: string;
+  text: string;
+  handleReply: MouseEventHandler<HTMLButtonElement>;
+  showReplyButton: boolean;
+}> = ({ author, text, handleReply, showReplyButton }) => {
   return (
     <div className='flex items-center mb-4'>
       <div className='w-1/4'>
@@ -88,6 +90,14 @@ const Comment: React.FC<{ author: string; text: string }> = ({
         {/* Comment Content */}
         <div className='font-semibold'>{author}</div>
         <div className=''>{text}</div>
+        {showReplyButton && (
+          <button
+            onClick={handleReply}
+            className='mt-2 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300'
+          >
+            Reply
+          </button>
+        )}
       </div>
     </div>
   );
@@ -98,12 +108,18 @@ const PostPage: React.FC = () => {
   const [isCopied, setIsCopied] = useState(false);
   const [comments, setComments] = useState<string[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [replyContent, setReplyContent] = useState('');
+  const [replyingCommentId, setReplyingCommentId] = useState('');
 
   const path = usePathname();
   const parts = path.split('/');
   const id = parts[parts.length - 1];
 
   const user = useCurrentUser();
+
+  const handleReply = (commentId: string) => {
+    setReplyingCommentId(commentId);
+  };
 
   const handleSubmitComment = async () => {
     try {
@@ -128,6 +144,48 @@ const PostPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error posting comment:', error);
+    }
+  };
+
+  const handleSubmitReply = async (commentId: string, replyContent: string) => {
+    try {
+      const response = await fetch(`/api/posts/comment/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          content: replyContent,
+          commentId: commentId,
+        }),
+      });
+
+      if (response.ok) {
+        const newReply: Comment = await response.json();
+
+        // Find the parent comment in the comments state array
+        const updatedComments = comments.map((comment: any) => {
+          if (comment.id === commentId) {
+            // Update the replies array of the parent comment
+            return {
+              ...comment,
+              replies: [...(comment.replies || []), newReply],
+            };
+          }
+          return comment;
+        });
+
+        // Set the updated comments state array
+        setComments(updatedComments);
+
+        // Reset the replyingCommentId to close the reply textbox
+        setReplyingCommentId('');
+      } else {
+        console.error('Failed to post reply:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error posting reply:', error);
     }
   };
 
@@ -157,7 +215,7 @@ const PostPage: React.FC = () => {
       try {
         const response = await fetch(`/api/posts/comment/${id}`);
         if (response.ok) {
-          const data: Comment[] = await response.json();
+          const data = await response.json();
           setComments(data as any);
         }
       } catch (error) {
@@ -233,7 +291,7 @@ const PostPage: React.FC = () => {
     <Layout>
       <div className='my-6'>{videoFrame}</div>
       <div className='my-6'>{postContent}</div>
-      <div className='my-6'>
+      <div className='max-w-screen-lg mx-auto my-6'>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -256,13 +314,55 @@ const PostPage: React.FC = () => {
             Post Comment
           </button>
         </form>
+
         {comments && comments.length > 0 ? (
           comments.map((comment: any) => (
-            <Comment
-              key={comment.id}
-              author={comment.userId}
-              text={comment.content}
-            />
+            <div key={comment.id}>
+              <div className='flex flex-col'>
+                <Comment
+                  author={comment.userId}
+                  text={comment.content}
+                  handleReply={() => handleReply(comment.id)}
+                  showReplyButton={true}
+                />
+              </div>
+              <div className='ml-4'>
+                {replyingCommentId === comment.id && (
+                  <div>
+                    <textarea
+                      value={replyContent}
+                      onChange={(e) => setReplyContent(e.target.value)}
+                      placeholder='Enter your reply...'
+                      className='w-full border rounded-md p-2'
+                      rows={3}
+                      required
+                    />
+                    <button
+                      onClick={() =>
+                        handleSubmitReply(comment.id, replyContent)
+                      }
+                      className='bg-blue-500 text-white py-2 px-4 mt-2 rounded-md hover:bg-blue-600 transition duration-300'
+                    >
+                      Post Reply
+                    </button>
+                  </div>
+                )}
+                {comment.replies && comment.replies.length > 0 && (
+                  <div className='ml-4'>
+                    {comment.replies.map((reply: any) => (
+                      <div key={reply.id}>
+                        <Comment
+                          author={reply.userId}
+                          text={reply.content}
+                          handleReply={() => {}}
+                          showReplyButton={false}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           ))
         ) : (
           <p>No comments available.</p>
