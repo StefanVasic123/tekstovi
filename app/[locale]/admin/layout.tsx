@@ -169,6 +169,26 @@ const AdminLayout = () => {
     }
   };
 
+  const promotePost = async (id: string) => {
+    try {
+      const response = await fetch('/api/posts/promote/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: Date.now() }),
+      });
+      if (response.ok) {
+        fetchData();
+        toast(title);
+      } else {
+        console.error('Failed to promote post:', response.statusText);
+        toast('Failed to promote post');
+      }
+    } catch (error) {
+      console.error('Error promoting post:', error);
+      toast('Error promoting post');
+    }
+  };
+
   const toggleModal = (type: string) => {
     switch (type) {
       case 'create':
@@ -271,6 +291,12 @@ const AdminLayout = () => {
                                 className='bg-red-500 text-white px-2 py-1 rounded'
                               >
                                 Delete
+                              </button>
+                              <button
+                                onClick={() => promotePost(post.id)}
+                                className='bg-green-500 text-white px-2 py-1 rounded'
+                              >
+                                Promote
                               </button>
                             </div>
                           </div>

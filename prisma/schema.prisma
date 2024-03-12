@@ -19,7 +19,6 @@ model Post {
   certified   Boolean    @default(false)
   paid        Boolean    @default(false)
   free        Boolean    @default(false)
-  promoted    Boolean    @default(false)
   language    String?
   likeCount   Int       @default(0)
   role        String?
@@ -28,7 +27,16 @@ model Post {
   authorId    String?
   listPlaceId Int        @default(0)
   likes       Like[]
-  comments Comment[]
+  comments    Comment[]
+  promotion   Promotion?
+}
+
+model Promotion {
+  id            String    @id @default(cuid())
+  postId        String   @unique
+  promoted      Boolean   @default(false) // Default value set to false
+  datePromoted  DateTime  @default(now())
+  post          Post      @relation(fields: [postId], references: [id])
 }
 
 enum UserRole {
@@ -54,8 +62,8 @@ model User {
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   posts         Post[]
-  likes       Like[]
-  comments  Comment[]
+  likes         Like[]
+  comments      Comment[]
   replies       Reply[]
   @@map(name: "users")
 }
@@ -81,18 +89,18 @@ model Account {
 }
 
 model VerificationToken {
-  id  String @id @default(cuid())
-  email String
-  token String @unique
+  id      String @id @default(cuid())
+  email   String
+  token   String @unique
   expires DateTime
 
   @@unique([email, token])
 }
 
 model PasswordResetToken {
-  id  String @id @default(cuid())
-  email String
-  token String @unique
+  id      String @id @default(cuid())
+  email   String
+  token   String @unique
   expires DateTime
 
   @@unique([email, token])

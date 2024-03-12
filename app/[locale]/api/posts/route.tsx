@@ -50,6 +50,10 @@ export async function GET(request: Request) {
       },
     };
 
+    const includePromotion = {
+      promotion: true, // Include the promotion field
+    };
+
     let searchCondition: any = {};
 
     if (search) {
@@ -106,7 +110,7 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: { ...includeAuthor, ...includeComments },
+        include: { ...includeAuthor, ...includeComments, ...includePromotion },
       });
     } else if (genre) {
       posts = await prisma.post.findMany({
@@ -116,7 +120,7 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: { ...includeAuthor, ...includeComments },
+        include: { ...includeAuthor, ...includeComments, ...includePromotion },
       });
     } else if (gender) {
       posts = await prisma.post.findMany({
@@ -126,7 +130,7 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: { ...includeAuthor, ...includeComments },
+        include: { ...includeAuthor, ...includeComments, ...includePromotion },
       });
     } else {
       posts = await prisma.post.findMany({
@@ -136,13 +140,13 @@ export async function GET(request: Request) {
         },
         take: POSTS_PER_PAGE,
         skip: offset,
-        include: { ...includeAuthor, ...includeComments },
+        include: { ...includeAuthor, ...includeComments, ...includePromotion },
       });
     }
 
     posts = posts.map((post: any) => ({
       ...post,
-      commentCount: post.comments.length,
+      commentCount: post?.comments?.length,
     }));
 
     return NextResponse.json(posts);
