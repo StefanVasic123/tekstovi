@@ -13,6 +13,7 @@ import GrayHeartIcon from '@/icons/GrayHeartIcon';
 import BlueHeartIcon from '@/icons/BlueHeartIcon';
 import LikeButton from '@/icons/LikeButton';
 import CommentIcon from '@/icons/CommentIcon';
+import FavoritesButton from '@/icons/FavoritesButton';
 import { usePosts } from '../context';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
@@ -219,7 +220,7 @@ export default function Home() {
               return (
                 <div
                   key={Math.random()}
-                  className='bg-white p-4 shadow-md hover:shadow-lg cursor-pointer text-center flex flex-col h-full'
+                  className='bg-white p-4 shadow-md hover:shadow-lg cursor-pointer text-center flex flex-col h-full relative' // Added relative positioning
                 >
                   <div className='mb-2'>
                     <div className='flex items-center justify-center mb-2'>
@@ -250,6 +251,10 @@ export default function Home() {
                         </button>
                       )}
                       {renderWishlistButtons(item)}
+                      <div className='absolute top-0 right-0'>
+                        {/* Position FavoritesButton in the top right corner */}
+                        {item?.promotion?.promoted && <FavoritesButton />}
+                      </div>
                     </div>
                     {item.voiceCover && postId === item.id && (
                       <div className='video-container'>
