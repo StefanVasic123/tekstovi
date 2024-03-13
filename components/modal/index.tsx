@@ -3,23 +3,25 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 interface ModalData {
-  title: string;
-  content: string;
-  genre: string;
-  gender: string;
-  language: string;
-  role: string;
-  date: string;
-  voiceCover: string;
-  authorId: string;
+  title?: string;
+  content?: string;
+  genre?: string;
+  gender?: string;
+  language?: string;
+  role?: string;
+  date?: string;
+  voiceCover?: string;
+  authorId?: string;
+  promotionDuration?: string;
 }
 
 interface ModalProps {
   modalId: string;
   onSubmit: (data: ModalData) => void;
   title: string;
-  originalData: any;
+  originalData?: any;
   toggleModal: Function;
+  isPromotionModal?: string | undefined;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -27,6 +29,7 @@ const Modal: React.FC<ModalProps> = ({
   onSubmit,
   originalData,
   toggleModal,
+  isPromotionModal,
 }) => {
   const isUser = useCurrentUser();
   const countryPrefix = usePathname().split('/')[1];
@@ -41,6 +44,7 @@ const Modal: React.FC<ModalProps> = ({
     date: modalId === 'update' ? originalData.date : '',
     authorId: '',
   });
+  const [promotionDuration, setPromotionDuration] = useState('');
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -82,10 +86,14 @@ const Modal: React.FC<ModalProps> = ({
 
   const handleSubmit = () => {
     // Send the data to your Prisma API or do any other required actions.
-    onSubmit({
-      ...formData,
-      authorId: isUser?.id || '',
-    });
+    onSubmit(
+      isPromotionModal
+        ? (promotionDuration as any)
+        : {
+            ...formData,
+            authorId: isUser?.id || '',
+          }
+    );
     toggleModal(''); // Close the modal after submission.
   };
 
@@ -136,90 +144,104 @@ const Modal: React.FC<ModalProps> = ({
             </button>
           </div>
 
-          <div className='p-6 space-y-6'>
-            <textarea
-              name='content'
-              value={formData.content}
-              onChange={handleInputChange}
-              className='w-full outline-none border rounded-lg p-2 placeholder-gray-500 dark:placeholder-gray-400'
-              placeholder='Content...'
-            />
-
+          {isPromotionModal ? (
             <select
-              name='genre'
-              value={formData.genre}
-              onChange={(e: any) => handleSelectGenre(e.target.value)}
+              value={promotionDuration}
+              onChange={(e) => setPromotionDuration(e.target.value)}
               className='w-full outline-none border-none'
             >
-              <option value='' disabled>
-                Odaberi žanr
-              </option>
-              <option value='folk'>Narodna</option>
-              <option value='pop'>Pop</option>
-              <option value='dancehall'>Dancehall</option>
+              <option value='86400000'>1 min</option>
+              <option value='86400000'>1 day</option>
+              <option value='604800000'>7 days</option>
+              <option value='1296000000'>15 days</option>
+              <option value='2592000000'>30 days</option>
             </select>
+          ) : (
+            <div className='p-6 space-y-6'>
+              <textarea
+                name='content'
+                value={formData.content}
+                onChange={handleInputChange}
+                className='w-full outline-none border rounded-lg p-2 placeholder-gray-500 dark:placeholder-gray-400'
+                placeholder='Content...'
+              />
 
-            <select
-              name='gender'
-              value={formData.gender}
-              onChange={(e: any) => handleSelectGender(e.target.value)}
-              className='w-full outline-none border-none'
-            >
-              <option value='' disabled>
-                Vokal
-              </option>
-              <option value='male'>Muški</option>
-              <option value='female'>Ženski</option>
-              <option value='duet'>Duet</option>
-            </select>
+              <select
+                name='genre'
+                value={formData.genre}
+                onChange={(e: any) => handleSelectGenre(e.target.value)}
+                className='w-full outline-none border-none'
+              >
+                <option value='' disabled>
+                  Odaberi žanr
+                </option>
+                <option value='folk'>Narodna</option>
+                <option value='pop'>Pop</option>
+                <option value='dancehall'>Dancehall</option>
+              </select>
 
-            <select
-              name='language'
-              value={formData.language}
-              onChange={(e: any) => handleSelectLanguage(e.target.value)}
-              className='w-full outline-none border-none'
-            >
-              <option value='' disabled>
-                Language
-              </option>
-              <option value='en-US'>EN-US</option>
-              <option value='es'>ES</option>
-              <option value='de'>DE</option>
-              <option value='fr'>FR</option>
-              <option value='sr_RS'>SR</option>
-            </select>
+              <select
+                name='gender'
+                value={formData.gender}
+                onChange={(e: any) => handleSelectGender(e.target.value)}
+                className='w-full outline-none border-none'
+              >
+                <option value='' disabled>
+                  Vokal
+                </option>
+                <option value='male'>Muški</option>
+                <option value='female'>Ženski</option>
+                <option value='duet'>Duet</option>
+              </select>
 
-            <select
-              name='role'
-              value={formData.role}
-              onChange={(e: any) => handleSelectRole(e.target.value)}
-              className='w-full outline-none border-none'
-            >
-              <option value='' disabled>
-                Role
-              </option>
-              <option value='lyricist'>Lyricist</option>
-              <option value='producer'>Producer</option>
-              <option value='lyricist/producer'>Lyricist / Producer</option>
-            </select>
+              <select
+                name='language'
+                value={formData.language}
+                onChange={(e: any) => handleSelectLanguage(e.target.value)}
+                className='w-full outline-none border-none'
+              >
+                <option value='' disabled>
+                  Language
+                </option>
+                <option value='en-US'>EN-US</option>
+                <option value='es'>ES</option>
+                <option value='de'>DE</option>
+                <option value='fr'>FR</option>
+                <option value='sr_RS'>SR</option>
+              </select>
 
-            <input
-              type='date'
-              name='date'
-              value={formData.date}
-              onChange={handleInputChange}
-              className='w-full outline-none border-none'
-            />
+              <select
+                name='role'
+                value={formData.role}
+                onChange={(e: any) => handleSelectRole(e.target.value)}
+                className='w-full outline-none border-none'
+              >
+                <option value='' disabled>
+                  Role
+                </option>
+                <option value='lyricist'>Lyricist</option>
+                <option value='producer'>Producer</option>
+                <option value='lyricist/producer'>Lyricist / Producer</option>
+              </select>
 
-            <input
-              type='text'
-              name='voiceCover'
-              value={formData.voiceCover}
-              onChange={handleInputChange}
-              placeholder='link to voice cover'
-              className='w-full outline-none border-none'
-            />
-          </div>
+              <input
+                type='date'
+                name='date'
+                value={formData.date}
+                onChange={handleInputChange}
+                className='w-full outline-none border-none'
+              />
+
+              <input
+                type='text'
+                name='voiceCover'
+                value={formData.voiceCover}
+                onChange={handleInputChange}
+                placeholder='link to voice cover'
+                className='w-full outline-none border-none'
+              />
+            </div>
+          )}
 
           <div className='flex items-center space-x-2 border-t border-gray-200 dark:border-gray-600'>
             <button

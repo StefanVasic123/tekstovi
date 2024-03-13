@@ -33,10 +33,11 @@ model Post {
 
 model Promotion {
   id            String    @id @default(cuid())
-  postId        String   @unique
-  promoted      Boolean   @default(false) // Default value set to false
+  postId        String    @unique
+  promoted      Boolean   @default(false)
   datePromoted  DateTime  @default(now())
   post          Post      @relation(fields: [postId], references: [id])
+  expires_at    DateTime  @default(now())
 }
 
 enum UserRole {

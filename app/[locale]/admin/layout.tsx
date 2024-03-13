@@ -18,6 +18,7 @@ const AdminLayout = () => {
   const [updateError, setUpdateError] = useState('');
   const [isOpenCreate, setIsOpenCreate] = useState(false);
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+  const [promotionPostId, setPromotionPostId] = useState('');
 
   const currentUser: any = useCurrentUser();
 
@@ -169,13 +170,16 @@ const AdminLayout = () => {
     }
   };
 
-  const promotePost = async (id: string) => {
+  const promotePost = async (id: string, promotionDuration: string) => {
     try {
-      const response = await fetch('/api/posts/promote/' + id, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: Date.now() }),
-      });
+      const response = await fetch(
+        `/api/posts/promote/${id}?duration=${promotionDuration}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: Date.now() }),
+        }
+      );
       if (response.ok) {
         fetchData();
         toast(title);
@@ -293,7 +297,7 @@ const AdminLayout = () => {
                                 Delete
                               </button>
                               <button
-                                onClick={() => promotePost(post.id)}
+                                onClick={() => setPromotionPostId(post.id)}
                                 className='bg-green-500 text-white px-2 py-1 rounded'
                               >
                                 Promote
@@ -329,6 +333,19 @@ const AdminLayout = () => {
             title={title}
             originalData={updateData}
             toggleModal={(type: string) => toggleModal(type)}
+          />
+        </div>
+      )}
+      {promotionPostId && (
+        <div>
+          <Modal
+            modalId='promotion'
+            onSubmit={(promotionDuration: any) =>
+              promotePost(promotionPostId, promotionDuration)
+            }
+            title={'Choose promotion duration'}
+            toggleModal={(type: string) => toggleModal(type)}
+            isPromotionModal={promotionPostId}
           />
         </div>
       )}
