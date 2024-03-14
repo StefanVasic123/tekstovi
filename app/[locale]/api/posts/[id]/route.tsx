@@ -63,9 +63,42 @@ export async function DELETE(
 ) {
   try {
     const id = params.id;
+
+    // Delete associated promotions first
+    await prisma.promotion.deleteMany({
+      where: {
+        postId: id,
+      },
+    });
+
+    // Delete associated likes first
+    await prisma.like.deleteMany({
+      where: {
+        postId: id,
+      },
+    });
+
+    // Delete associated replies
+    await prisma.reply.deleteMany({
+      where: {
+        comment: {
+          postId: id,
+        },
+      },
+    });
+
+    // Delete associated comments
+    await prisma.comment.deleteMany({
+      where: {
+        postId: id,
+      },
+    });
+
+    // Then delete the post
     await prisma.post.delete({
       where: { id },
     });
+
     return new NextResponse(null, { status: 204 });
   } catch (error: any) {
     if (error.code === 'P2025') {

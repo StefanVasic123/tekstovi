@@ -13,6 +13,7 @@ interface ModalData {
   voiceCover?: string;
   authorId?: string;
   promotionDuration?: string;
+  postId?: string;
 }
 
 interface ModalProps {
@@ -22,6 +23,9 @@ interface ModalProps {
   originalData?: any;
   toggleModal: Function;
   isPromotionModal?: string | undefined;
+  isDeleteModal?: boolean;
+  isCreateModal?: boolean;
+  postId?: string;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -30,6 +34,9 @@ const Modal: React.FC<ModalProps> = ({
   originalData,
   toggleModal,
   isPromotionModal,
+  isDeleteModal,
+  isCreateModal,
+  postId,
 }) => {
   const isUser = useCurrentUser();
   const countryPrefix = usePathname().split('/')[1];
@@ -86,14 +93,18 @@ const Modal: React.FC<ModalProps> = ({
 
   const handleSubmit = () => {
     // Send the data to your Prisma API or do any other required actions.
-    onSubmit(
-      isPromotionModal
-        ? (promotionDuration as any)
-        : {
-            ...formData,
-            authorId: isUser?.id || '',
-          }
-    );
+    let submitData;
+    if (isDeleteModal) {
+      submitData = postId;
+    } else if (isPromotionModal) {
+      submitData = promotionDuration as any;
+    } else {
+      submitData = {
+        ...formData,
+        authorId: isUser?.id || '',
+      };
+    }
+    onSubmit(submitData);
     toggleModal(''); // Close the modal after submission.
   };
 
@@ -144,7 +155,7 @@ const Modal: React.FC<ModalProps> = ({
             </button>
           </div>
 
-          {isPromotionModal ? (
+          {isPromotionModal && (
             <select
               value={promotionDuration}
               onChange={(e) => setPromotionDuration(e.target.value)}
@@ -159,7 +170,8 @@ const Modal: React.FC<ModalProps> = ({
               <option value='1296000000'>15 days</option>
               <option value='2592000000'>30 days</option>
             </select>
-          ) : (
+          )}
+          {isCreateModal && (
             <div className='p-6 space-y-6'>
               <textarea
                 name='content'

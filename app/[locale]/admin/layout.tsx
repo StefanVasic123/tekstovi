@@ -18,6 +18,7 @@ const AdminLayout = () => {
   const [updateError, setUpdateError] = useState('');
   const [isOpenCreate, setIsOpenCreate] = useState(false);
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+  const [deletePostId, setDeletePostId] = useState('');
   const [promotionPostId, setPromotionPostId] = useState('');
 
   const currentUser: any = useCurrentUser();
@@ -82,6 +83,7 @@ const AdminLayout = () => {
       });
       // Refresh the list of posts after deletion
       fetchData();
+      toggleModal('delete');
     } catch (error) {
       console.log('error', error);
     }
@@ -184,6 +186,7 @@ const AdminLayout = () => {
         fetchData();
         toast(title);
         toggleModal('promotion');
+        setPromotionPostId('');
       } else {
         console.error('Failed to promote post:', response.statusText);
         toast('Failed to promote post');
@@ -204,10 +207,14 @@ const AdminLayout = () => {
         break;
       case 'promotion':
         setPromotionPostId('');
+        break;
+      case 'delete':
+        setDeletePostId('');
       default:
         setIsOpenCreate(false);
         setIsOpenUpdate(false);
         setPromotionPostId('');
+        setDeletePostId('');
     }
   };
 
@@ -295,7 +302,7 @@ const AdminLayout = () => {
                                 Update
                               </button>
                               <button
-                                onClick={() => deletePost(post.id)}
+                                onClick={() => setDeletePostId(post.id as any)}
                                 className='bg-red-500 text-white px-2 py-1 rounded'
                               >
                                 Delete
@@ -326,6 +333,7 @@ const AdminLayout = () => {
             title={title}
             originalData={{}}
             toggleModal={(type: string) => toggleModal(type)}
+            isCreateModal={true}
           />
         </div>
       )}
@@ -337,6 +345,7 @@ const AdminLayout = () => {
             title={title}
             originalData={updateData}
             toggleModal={(type: string) => toggleModal(type)}
+            isCreateModal={true}
           />
         </div>
       )}
@@ -350,6 +359,18 @@ const AdminLayout = () => {
             title={'Choose promotion duration'}
             toggleModal={(type: string) => toggleModal(type)}
             isPromotionModal={promotionPostId}
+          />
+        </div>
+      )}
+      {deletePostId && (
+        <div>
+          <Modal
+            modalId='delete'
+            onSubmit={(e: any) => deletePost(e)}
+            title='Are you sure want to delete this lyrics?'
+            toggleModal={(type: string) => toggleModal(type)}
+            isDeleteModal={true}
+            postId={deletePostId as string}
           />
         </div>
       )}
