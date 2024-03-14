@@ -150,7 +150,10 @@ const Modal: React.FC<ModalProps> = ({
               onChange={(e) => setPromotionDuration(e.target.value)}
               className='w-full outline-none border-none'
             >
-              <option value='86400000'>1 min</option>
+              <option value='' selected disabled hidden>
+                Choose here
+              </option>
+              <option value='60000'>1 min</option>
               <option value='86400000'>1 day</option>
               <option value='604800000'>7 days</option>
               <option value='1296000000'>15 days</option>

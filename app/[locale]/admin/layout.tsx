@@ -183,6 +183,7 @@ const AdminLayout = () => {
       if (response.ok) {
         fetchData();
         toast(title);
+        toggleModal('promotion');
       } else {
         console.error('Failed to promote post:', response.statusText);
         toast('Failed to promote post');
@@ -201,9 +202,12 @@ const AdminLayout = () => {
       case 'update':
         setIsOpenUpdate(!isOpenUpdate);
         break;
+      case 'promotion':
+        setPromotionPostId('');
       default:
         setIsOpenCreate(false);
         setIsOpenUpdate(false);
+        setPromotionPostId('');
     }
   };
 
