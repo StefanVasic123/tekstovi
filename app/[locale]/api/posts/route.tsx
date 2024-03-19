@@ -169,6 +169,8 @@ async function fetchNonPromotedPosts(
   gender: string | null,
   wishlist: string | null,
   search: string | null,
+  isAdminRequest: boolean,
+  authorId: string | null,
   language: string | null,
   offset: number,
   limit: number
