@@ -23,15 +23,27 @@ const useDataFetching = ({
   const fetchPosts = async () => {
     try {
       // Conditionally include genre and gender parameters
-      const url = `${countryPrefix}/api/posts?postsPagination=${postsPagination}${
+      let url = `${countryPrefix}/api/posts?postsPagination=${postsPagination}${
         selectedGenre ? `&genre=${selectedGenre}` : ''
       }${selectedGender ? `&gender=${selectedGender}` : ''}`;
+
+      // Add a query parameter to indicate promoted posts should be listed first
+      url += '&promotedFirst=true';
 
       const response = await fetch(url);
 
       if (response.ok) {
         const data: Post[] = await response.json();
-        data.sort((a, b) => a.listPlaceId - b.listPlaceId);
+        // Sort posts to list promoted posts first
+        data.sort((a: any, b: any) => {
+          if (a.promotion && !b.promotion) {
+            return -1; // a comes first
+          } else if (!a.promotion && b.promotion) {
+            return 1; // b comes first
+          } else {
+            return 0; // maintain order
+          }
+        });
         data?.length === 0 && setHasMore(false);
         setPosts((prevPosts) => [...prevPosts, ...data]);
         setPostsPagination((prevPagination) => prevPagination + 1);
@@ -58,11 +70,23 @@ const useDataFetching = ({
         url = url.replace(/&wishlist=[^&]*/, '');
       }
 
+      // Add a query parameter to indicate promoted posts should be listed first
+      url += '&promotedFirst=true';
+
       const response = await fetch(url);
 
       if (response.ok) {
         const data: Post[] = await response.json();
-        data.sort((a, b) => a.listPlaceId - b.listPlaceId);
+        // Sort posts to list promoted posts first
+        data.sort((a: any, b: any) => {
+          if (a.promotion && !b.promotion) {
+            return -1; // a comes first
+          } else if (!a.promotion && b.promotion) {
+            return 1; // b comes first
+          } else {
+            return 0; // maintain order
+          }
+        });
         data?.length === 0 && setHasMore(false);
         setPosts(data);
         setPostsPagination((prevPagination) => prevPagination + 1); // Increment pagination for infinite scroll

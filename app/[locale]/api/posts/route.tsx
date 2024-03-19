@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-const POSTS_PER_PAGE = 20;
+let POSTS_PER_PAGE = 20;
 
 interface RequestBody {
   title: string;
@@ -18,141 +18,235 @@ interface RequestBody {
 
 export async function GET(request: Request) {
   try {
-    // Extract language from the URL path
-    const language = request.url.split('/')[3]; // Assuming language is the first part of the path
+    // Extract parameters from the request
+    const {
+      genre,
+      gender,
+      wishlist,
+      postsPagination,
+      search,
+      isAdminRequest,
+      authorId,
+      language,
+    } = extractParams(request);
 
-    const queryParams = new URLSearchParams(request.url.split('?')[1] || '');
-    const genre: any = queryParams.get('genre');
-    const gender: any = queryParams.get('gender');
-    const wishlist = queryParams.get('wishlist');
-    const postsPagination = queryParams.get('postsPagination');
-    const isAdminRequest = request.headers.get('x-admin-request') === 'true';
-    const authorId = queryParams.get('authorId');
-    const search = queryParams.get('search');
-
-    let posts: any;
+    // Calculate pagination offset
     const page = parseInt(postsPagination || '1', 10);
     const offset = (page - 1) * POSTS_PER_PAGE;
 
-    const includeAuthor = {
-      author: {
-        select: {
-          name: true,
-        },
-      },
-    };
+    let posts: any[];
 
-    const includeComments = {
-      comments: {
-        select: {
-          id: true,
-        },
-      },
-    };
-
-    const includePromotion = {
-      promotion: true, // Include the promotion field
-    };
-
-    let searchCondition: any = {};
-
-    if (search) {
-      searchCondition = {
-        OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { content: { contains: search, mode: 'insensitive' } },
-        ],
-      };
-    }
-
+    // If it's an admin request, fetch all posts
     if (isAdminRequest) {
-      if (!authorId) {
-        posts = [];
-      } else {
-        posts = await prisma.post.findMany({
-          where: { authorId: authorId },
-        });
-      }
-    } else if (wishlist && (genre || gender)) {
-      const wishlistItems = JSON.parse(wishlist);
-      posts = await prisma.post.findMany({
-        where: {
-          id: {
-            in: wishlistItems,
-          },
-          ...(genre && { genre: genre }),
-          ...(gender && { gender: gender }),
-          ...searchCondition,
-          ...(language && { language: language }), // Filter by language if provided
-        },
-        take: POSTS_PER_PAGE,
-        skip: offset,
-        include: { ...includeAuthor, ...includeComments },
-      });
-    } else if (wishlist) {
-      const wishlistItems = JSON.parse(wishlist);
-      posts = await prisma.post.findMany({
-        where: {
-          id: {
-            in: wishlistItems,
-          },
-        },
-        take: POSTS_PER_PAGE,
-        skip: offset,
-        include: { ...includeAuthor, ...includeComments },
-      });
-    } else if (genre && gender) {
-      posts = await prisma.post.findMany({
-        where: {
-          genre: genre,
-          gender: gender,
-          ...(language && { language: language }), // Filter by language if provided
-        },
-        take: POSTS_PER_PAGE,
-        skip: offset,
-        include: { ...includeAuthor, ...includeComments, ...includePromotion },
-      });
-    } else if (genre) {
-      posts = await prisma.post.findMany({
-        where: {
-          genre: genre,
-          ...(language && { language: language }), // Filter by language if provided
-        },
-        take: POSTS_PER_PAGE,
-        skip: offset,
-        include: { ...includeAuthor, ...includeComments, ...includePromotion },
-      });
-    } else if (gender) {
-      posts = await prisma.post.findMany({
-        where: {
-          gender: gender,
-          ...(language && { language: language }), // Filter by language if provided
-        },
-        take: POSTS_PER_PAGE,
-        skip: offset,
-        include: { ...includeAuthor, ...includeComments, ...includePromotion },
-      });
+      posts = await prisma.post.findMany();
     } else {
-      posts = await prisma.post.findMany({
-        where: {
-          ...(search !== null && search !== '' && searchCondition), // Include search condition if exists
-          ...(language && { language: language }), // Filter by language if provided
-        },
-        take: POSTS_PER_PAGE,
-        skip: offset,
-        include: { ...includeAuthor, ...includeComments, ...includePromotion },
-      });
+      // Fetch both promoted and non-promoted posts
+      const { promotedPosts, nonPromotedPosts } = await fetchPosts(
+        genre,
+        gender,
+        wishlist,
+        search,
+        isAdminRequest,
+        authorId,
+        language,
+        offset
+      );
+
+      // Concatenate promoted and non-promoted posts
+      posts = [...promotedPosts, ...nonPromotedPosts];
     }
 
-    posts = posts.map((post: any) => ({
+    // Transform posts data
+    const transformedPosts = posts.map((post: any) => ({
       ...post,
       commentCount: post?.comments?.length,
     }));
 
-    return NextResponse.json(posts);
+    return NextResponse.json(transformedPosts);
   } catch (error: any) {
     return new NextResponse(error.message, { status: 500 });
   }
+}
+
+async function fetchPosts(
+  genre: string | null,
+  gender: string | null,
+  wishlist: string | null,
+  search: string | null,
+  isAdminRequest: boolean,
+  authorId: string | null,
+  language: string | null,
+  offset: number
+): Promise<{ promotedPosts: any[]; nonPromotedPosts: any[] }> {
+  // Fetch promoted posts
+  const promotedPosts = await fetchPromotedPosts(
+    genre,
+    gender,
+    wishlist,
+    search,
+    language,
+    offset
+  );
+
+  let nonPromotedPosts: any[] = [];
+
+  // If there are fewer than POSTS_PER_PAGE promoted posts, fetch non-promoted posts to fill the remaining slots
+  if (promotedPosts.length < POSTS_PER_PAGE) {
+    nonPromotedPosts = await fetchNonPromotedPosts(
+      genre,
+      gender,
+      wishlist,
+      search,
+      isAdminRequest,
+      authorId,
+      language,
+      offset + promotedPosts.length,
+      POSTS_PER_PAGE - promotedPosts.length
+    );
+  }
+
+  return { promotedPosts, nonPromotedPosts };
+}
+
+async function fetchPromotedPosts(
+  genre: string | null,
+  gender: string | null,
+  wishlist: string | null,
+  search: string | null,
+  language: string | null,
+  offset: number
+): Promise<any[]> {
+  // Construct the include objects
+  const includeAuthor = {
+    author: {
+      select: {
+        name: true,
+      },
+    },
+  };
+
+  const includeComments = {
+    comments: {
+      select: {
+        id: true,
+      },
+    },
+  };
+
+  const includePromotion = {
+    promotion: true, // Include the promotion field
+  };
+
+  // Fetch promoted posts
+  return await prisma.post.findMany({
+    where: {
+      promotion: {
+        promoted: true,
+      },
+      ...(wishlist && {
+        id: {
+          in: JSON.parse(wishlist),
+        },
+      }),
+      ...(genre && { genre }),
+      ...(gender && { gender }),
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+          { content: { contains: search, mode: 'insensitive' } },
+        ],
+      }),
+      ...(language && { language }),
+    },
+    include: { ...includeAuthor, ...includeComments, ...includePromotion },
+    take: POSTS_PER_PAGE,
+    skip: offset,
+  });
+}
+
+async function fetchNonPromotedPosts(
+  genre: string | null,
+  gender: string | null,
+  wishlist: string | null,
+  search: string | null,
+  language: string | null,
+  offset: number,
+  limit: number
+): Promise<any[]> {
+  // Construct the include objects
+  const includeAuthor = {
+    author: {
+      select: {
+        name: true,
+      },
+    },
+  };
+
+  const includeComments = {
+    comments: {
+      select: {
+        id: true,
+      },
+    },
+  };
+
+  // Construct the where clause based on the provided filters
+  const whereClause: any = {
+    ...(wishlist && {
+      id: {
+        in: JSON.parse(wishlist),
+      },
+    }),
+    ...(genre && { genre }),
+    ...(gender && { gender }),
+    ...(search && {
+      OR: [
+        { title: { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } },
+      ],
+    }),
+    ...(language && { language }),
+  };
+
+  // Fetch non-promoted posts
+  return await prisma.post.findMany({
+    where: whereClause,
+    take: limit,
+    skip: offset, // Apply the provided offset
+    include: { ...includeAuthor, ...includeComments },
+  });
+}
+
+function extractParams(request: Request): {
+  genre: string | null;
+  gender: string | null;
+  wishlist: string | null;
+  postsPagination: string | null;
+  search: string | null;
+  isAdminRequest: boolean;
+  authorId: string | null;
+  language: string | null;
+} {
+  const queryParams = new URLSearchParams(request.url.split('?')[1] || '');
+  const genre = queryParams.get('genre');
+  const gender = queryParams.get('gender');
+  const wishlist = queryParams.get('wishlist');
+  const postsPagination = queryParams.get('postsPagination');
+  const search = queryParams.get('search');
+  const isAdminRequest = request.headers.get('x-admin-request') === 'true';
+  const authorId = queryParams.get('authorId');
+  const language = request.url.split('/')[3]; // Assuming language is the first part of the path
+
+  return {
+    genre,
+    gender,
+    wishlist,
+    postsPagination,
+    search,
+    isAdminRequest,
+    authorId,
+    language,
+  };
 }
 
 export async function POST(request: Request) {
