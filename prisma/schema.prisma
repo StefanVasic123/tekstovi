@@ -62,6 +62,7 @@ model User {
   accounts      Account[]
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
+  profileImage  String?
   posts         Post[]
   likes         Like[]
   comments      Comment[]

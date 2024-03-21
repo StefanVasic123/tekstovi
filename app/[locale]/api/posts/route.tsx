@@ -36,9 +36,16 @@ export async function GET(request: Request) {
 
     let posts: any[];
 
-    // If it's an admin request, fetch all posts
-    if (isAdminRequest) {
-      posts = await prisma.post.findMany();
+    // If it's an admin request and authorId exists, fetch posts related to authorId
+    if (isAdminRequest && authorId) {
+      posts = await prisma.post.findMany({
+        where: {
+          authorId: authorId,
+        },
+      });
+    } else if (isAdminRequest) {
+      // If it's an admin request but authorId is not provided, return empty array
+      posts = [];
     } else {
       // Fetch both promoted and non-promoted posts
       const { promotedPosts, nonPromotedPosts } = await fetchPosts(
@@ -55,7 +62,6 @@ export async function GET(request: Request) {
       // Concatenate promoted and non-promoted posts
       posts = [...promotedPosts, ...nonPromotedPosts];
     }
-
     // Transform posts data
     const transformedPosts = posts.map((post: any) => ({
       ...post,
