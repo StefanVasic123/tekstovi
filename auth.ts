@@ -41,6 +41,11 @@ export const {
       if (token.role && session.user) {
         session.user.role = token.role;
       }
+
+      if (token.image && session.user) {
+        session.user.image = `${token.image}`;
+      }
+
       return session;
     },
     async jwt({ token }) {
@@ -51,6 +56,8 @@ export const {
       if (!existingUser) return token;
 
       token.role = existingUser.role;
+
+      token.image = existingUser.image;
 
       return token;
     },

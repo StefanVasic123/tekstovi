@@ -6,7 +6,6 @@ import { Post } from '@/types.ts/post';
 import { useUserPosts } from '@/hooks/useUserPosts';
 import Layout from '@/components/layout';
 import jsPDF from 'jspdf';
-import { Open_Sans } from 'next/font/google';
 import html2canvas from 'html2canvas';
 import AvatarUploadPage from '../avatar/upload/page';
 
@@ -110,6 +109,7 @@ const MyAccount = () => {
 
   return (
     <Layout>
+      <AvatarUploadPage />
       <div className='max-w-2xl mx-auto p-8'>
         <div className='text-center mb-4'>
           {user?.image ? (

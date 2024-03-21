@@ -2,8 +2,11 @@
 
 import type { PutBlobResult } from '@vercel/blob';
 import { useState, useRef } from 'react';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export default function AvatarUploadPage() {
+  const user: any = useCurrentUser();
+
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
   return (
@@ -20,10 +23,13 @@ export default function AvatarUploadPage() {
 
           const file = inputFileRef.current.files[0];
 
-          const response = await fetch(`/api/avatar?filename=${file.name}`, {
-            method: 'POST',
-            body: file,
-          });
+          const response = await fetch(
+            `/api/avatar?filename=${file.name}&userId=${user.id}`,
+            {
+              method: 'POST',
+              body: file,
+            }
+          );
 
           const newBlob = (await response.json()) as PutBlobResult;
 

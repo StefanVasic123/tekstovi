@@ -7,6 +7,7 @@ export interface Post {
   language: string;
   role: string;
   date: string;
+  image: string;
   voiceCover: string;
   video: string;
   index: number;
