@@ -124,7 +124,8 @@ model Comment {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   post      Post     @relation(fields: [postId], references: [id])
-  replies   Reply[] @relation("ReplyToComment")
+  userImage String?  // Add userImage field to store user's image URL
+  replies   Reply[]  @relation("ReplyToComment")
 }
 
 model Reply {
@@ -134,5 +135,6 @@ model Reply {
   content     String
   createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id])
-  comment Comment @relation("ReplyToComment", fields: [commentId], references: [id]) 
+  comment     Comment  @relation("ReplyToComment", fields: [commentId], references: [id]) 
+  userImage   String?  // Add userImage field to store user's image URL
 }

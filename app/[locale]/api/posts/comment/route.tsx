@@ -14,12 +14,23 @@ export async function POST(request: Request) {
       return new NextResponse('User not authenticated', { status: 401 });
     }
 
+    // Fetch the user's image URL
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        image: true,
+      },
+    });
+
     // Create the comment in the database
     const comment = await prisma.comment.create({
       data: {
         postId,
         userId,
         content,
+        userImage: user?.image,
       },
     });
 

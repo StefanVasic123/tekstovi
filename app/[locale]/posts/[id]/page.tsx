@@ -88,7 +88,7 @@ const Comment: React.FC<{
         {/* User Avatar */}
         <div className='w-10 h-10 bg-gray-300 rounded-full'>
           <Image
-            src={userAvatar as any}
+            src={(userAvatar as any) || ''}
             alt={`${author}'s avatar`}
             className='w-full h-full object-cover rounded-full'
             width={100}
@@ -334,7 +334,7 @@ const PostPage: React.FC = () => {
                   text={comment.content}
                   handleReply={() => handleReply(comment.id)}
                   showReplyButton={true}
-                  userAvatar={user?.image}
+                  userAvatar={comment?.userImage}
                 />
               </div>
               <div className='ml-4'>
@@ -367,7 +367,7 @@ const PostPage: React.FC = () => {
                           text={reply.content}
                           handleReply={() => {}}
                           showReplyButton={false}
-                          userAvatar={user?.image}
+                          userAvatar={reply?.userImage}
                         />
                       </div>
                     ))}
