@@ -2,12 +2,11 @@
 import { useEffect, useState } from 'react';
 import { FaShare, FaDownload } from 'react-icons/fa'; // Import icons
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Post } from '@/types.ts/post';
 import { useUserPosts } from '@/hooks/useUserPosts';
 import Layout from '@/components/layout';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import AvatarUploadPage from '../avatar/upload/page';
+import AvatarUploadPage from '@/components/avatar/upload/page';
 
 /*
 interface User {
