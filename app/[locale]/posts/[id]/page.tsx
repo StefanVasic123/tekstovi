@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { MouseEventHandler, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Layout from '@/components/layout';
@@ -79,12 +80,21 @@ const Comment: React.FC<{
   text: string;
   handleReply: MouseEventHandler<HTMLButtonElement>;
   showReplyButton: boolean;
-}> = ({ author, text, handleReply, showReplyButton }) => {
+  userAvatar: string | undefined | null;
+}> = ({ author, text, handleReply, showReplyButton, userAvatar }) => {
   return (
     <div className='flex items-center mb-4'>
       <div className='w-1/4'>
         {/* User Avatar */}
-        <div className='w-10 h-10 bg-gray-300 rounded-full' />
+        <div className='w-10 h-10 bg-gray-300 rounded-full'>
+          <Image
+            src={userAvatar as any}
+            alt={`${author}'s avatar`}
+            className='w-full h-full object-cover rounded-full'
+            width={100}
+            height={100}
+          />
+        </div>
       </div>
       <div className='w-3/4'>
         {/* Comment Content */}
@@ -324,6 +334,7 @@ const PostPage: React.FC = () => {
                   text={comment.content}
                   handleReply={() => handleReply(comment.id)}
                   showReplyButton={true}
+                  userAvatar={user?.image}
                 />
               </div>
               <div className='ml-4'>
@@ -356,6 +367,7 @@ const PostPage: React.FC = () => {
                           text={reply.content}
                           handleReply={() => {}}
                           showReplyButton={false}
+                          userAvatar={user?.image}
                         />
                       </div>
                     ))}
