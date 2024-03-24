@@ -240,7 +240,7 @@ const Navbar = () => {
               <div
                 className={`${
                   !isSmallScreen && 'absolute'
-                } bg-white border rounded-md right-0`}
+                } bg-white border rounded-md right-0 z-10`}
               >
                 <Link href='/my-account'>
                   <p className='block p-2' onClick={closeDropdown}>

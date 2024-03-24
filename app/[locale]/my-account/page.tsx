@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaShare, FaDownload } from 'react-icons/fa'; // Import icons
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Post } from '@/types.ts/post';
@@ -23,10 +23,15 @@ interface AccountProps {
 */
 
 const MyAccount = () => {
-  const [newImageUrl, setNewImageUrl] = useState('');
+  const [showUploadImage, setShowUploadImage] = useState(false);
+  const [userImage, setUserImage] = useState('');
   const user: any = useCurrentUser();
 
   const userPosts: any = useUserPosts();
+
+  useEffect(() => {
+    setUserImage(user?.image);
+  }, [user]);
 
   const downloadPdf = (post: any) => {
     const pdf = new jsPDF();
@@ -73,55 +78,29 @@ const MyAccount = () => {
     });
   };
 
-  const handleImageChange = async () => {
-    try {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-      fileInput.click();
+  const showUploadButton = () => {
+    setShowUploadImage(!showUploadImage);
+  };
 
-      fileInput.onchange = async (e) => {
-        const file = (e.target as any).files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch(
-          `/api/avatar?filename=${file.name}&userId=${user.id}`,
-          {
-            method: 'POST',
-            body: formData,
-          }
-        );
-
-        if (response.ok) {
-          const result = await response.json();
-          const imageUrl = result.url;
-
-          setNewImageUrl(imageUrl);
-        } else {
-          console.error('Image upload failed:', response.statusText);
-        }
-      };
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    }
+  const handleImageChange = async (res: any) => {
+    setUserImage(res.image);
+    setShowUploadImage(false);
   };
 
   return (
     <Layout>
-      <AvatarUploadPage />
       <div className='max-w-2xl mx-auto p-8'>
         <div className='text-center mb-4'>
           {user?.image ? (
             <div className='relative mx-auto mb-4 h-40 w-40 rounded-full overflow-hidden'>
               <img
-                src={newImageUrl || user.image}
+                src={userImage || user.image}
                 alt={`${user.name}'s profile picture`}
                 className='w-full h-full object-cover'
               />
               <button
                 className='absolute bottom-5 left-0 right-0 bg-black bg-opacity-50 text-white text-sm font-semibold hover:bg-opacity-70'
-                onClick={handleImageChange}
+                onClick={showUploadButton}
               >
                 Change Image
               </button>
@@ -130,11 +109,16 @@ const MyAccount = () => {
             <div className='relative mx-auto mb-4 h-40 w-40 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center'>
               <button
                 className='absolute bottom-5 left-0 right-0 bg-black bg-opacity-50 text-white text-sm font-semibold hover:bg-opacity-70'
-                onClick={handleImageChange}
+                onClick={showUploadButton}
               >
                 Upload Image
               </button>
             </div>
+          )}
+          {showUploadImage && (
+            <AvatarUploadPage
+              handleImageChange={(e: any) => handleImageChange(e)}
+            />
           )}
           <h1 className='text-2xl font-bold'>{user?.name}</h1>
           <p className='text-gray-500'>{user?.email}</p>

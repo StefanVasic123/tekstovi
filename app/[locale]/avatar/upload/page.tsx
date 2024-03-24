@@ -1,14 +1,16 @@
 'use client';
 
-import type { PutBlobResult } from '@vercel/blob';
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
-export default function AvatarUploadPage() {
+interface Props {
+  handleImageChange: (result: any) => void; // Adjust the type according to your response shape
+}
+
+export default function AvatarUploadPage({ handleImageChange }: Props) {
   const user: any = useCurrentUser();
 
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const [blob, setBlob] = useState<PutBlobResult | null>(null);
   return (
     <>
       <h1>Upload Your Avatar</h1>
@@ -31,19 +33,12 @@ export default function AvatarUploadPage() {
             }
           );
 
-          const newBlob = (await response.json()) as PutBlobResult;
-
-          setBlob(newBlob);
+          handleImageChange(await response.json());
         }}
       >
         <input name='file' ref={inputFileRef} type='file' required />
         <button type='submit'>Upload</button>
       </form>
-      {blob && (
-        <div>
-          Blob url: <a href={blob.url}>{blob.url}</a>
-        </div>
-      )}
     </>
   );
 }
