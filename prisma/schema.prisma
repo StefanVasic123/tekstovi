@@ -15,12 +15,13 @@ model Post {
   genre       String?
   gender      String?    @default("male")
   date        String
+  createdAt   DateTime   @default(now())  // Add createdAt field
   published   Boolean    @default(false)
   certified   Boolean    @default(false)
   paid        Boolean    @default(false)
   free        Boolean    @default(false)
   language    String?
-  likeCount   Int       @default(0)
+  likeCount   Int        @default(0)
   role        String?
   voiceCover  String?    
   author      User?      @relation(fields: [authorId], references: [id])

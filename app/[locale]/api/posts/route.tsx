@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 let POSTS_PER_PAGE = 20;
+const POSTS_PER_DAY = 20;
 
 interface RequestBody {
   title: string;
@@ -267,6 +268,27 @@ async function isDuplicatePost(data: RequestBody): Promise<boolean> {
   `;
   return similarPost && similarPost[0].exists;
 }
+
+// Function to check if the user has reached the post limit for the day
+async function hasReachedPostLimit(authorId: string): Promise<boolean> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to the beginning of the day
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1); // Set to the beginning of the next day
+
+  const userPostCount = await prisma.post.count({
+    where: {
+      authorId: authorId,
+      createdAt: {
+        gte: today.toISOString(), // Posts created from the beginning of today
+        lt: tomorrow.toISOString(), // Posts created before the beginning of tomorrow
+      },
+    },
+  });
+
+  return userPostCount >= POSTS_PER_DAY;
+}
+
 export async function POST(request: Request) {
   try {
     const body: RequestBody = await request.json();
@@ -275,6 +297,12 @@ export async function POST(request: Request) {
     const isDuplicate = await isDuplicatePost(body);
     if (isDuplicate) {
       return new NextResponse('Lyrics already exist', { status: 409 });
+    }
+
+    // Check if the user has reached the post limit for the day
+    const hasReachedLimit = await hasReachedPostLimit(body.authorId);
+    if (hasReachedLimit) {
+      return new NextResponse('Post limit exceeded for today', { status: 403 });
     }
 
     // Retrieve the maximum listPlaceId from existing items
