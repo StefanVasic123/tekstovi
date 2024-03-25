@@ -257,9 +257,26 @@ function extractParams(request: Request): {
   };
 }
 
+async function isDuplicatePost(data: RequestBody): Promise<boolean> {
+  const similarPost: any = await prisma.$queryRaw`
+    SELECT EXISTS (
+      SELECT 1
+      FROM "Post"
+      WHERE content % ${data.content}
+    ) AS "exists"
+  `;
+  return similarPost && similarPost[0].exists;
+}
 export async function POST(request: Request) {
   try {
     const body: RequestBody = await request.json();
+
+    // Check for duplicate post
+    const isDuplicate = await isDuplicatePost(body);
+    if (isDuplicate) {
+      return new NextResponse('Lyrics already exist', { status: 409 });
+    }
+
     // Retrieve the maximum listPlaceId from existing items
     const maxListPlaceId = await prisma.post.findFirst({
       select: {
