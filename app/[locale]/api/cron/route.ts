@@ -3,11 +3,11 @@ import prisma from '@/lib/prisma';
 export async function GET(request: Request) {
   try {
     // Perform authorization check here if needed
-    const authHeader = request.headers.get('authorization');
+    /*
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return new Response('Unauthorized', { status: 401 });
     }
-
+    */
     const expiredPromotions = await prisma.promotion.findMany({
       where: {
         expires_at: {
