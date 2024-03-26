@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { FaShare, FaDownload } from 'react-icons/fa'; // Import icons
+import { FaShare, FaDownload } from 'react-icons/fa';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useUserPosts } from '@/hooks/useUserPosts';
 import Layout from '@/components/layout';

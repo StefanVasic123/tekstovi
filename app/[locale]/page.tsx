@@ -303,7 +303,11 @@ export default function Home() {
                       <p className='text-blue-600 font-semibold'>
                         {item.genre}
                       </p>
-                      <p className='text-gray-600'>{item.author?.name}</p>
+                      <p className='text-gray-600'>
+                        <Link href={`/user-account?authorId=${item.authorId}`}>
+                          {item.author?.name}
+                        </Link>
+                      </p>
                     </div>
                   </div>
                 </div>
