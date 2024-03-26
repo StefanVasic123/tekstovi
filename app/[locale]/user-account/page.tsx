@@ -12,10 +12,12 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 const UserAccount = () => {
-  const { isWishlist, toggleHeartClick } = usePosts();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
   const [posts, setPosts] = useState([]);
+  const [favoriteItems, setFavoriteItems] = useState<string[]>();
+
+  const localStorageKey = 'favoriteItems';
 
   useEffect(() => {
     const authorId = searchParams.get('authorId');
@@ -44,9 +46,49 @@ const UserAccount = () => {
         }
       };
 
+      const storedItems = localStorage.getItem(localStorageKey);
+      setFavoriteItems(storedItems ? JSON.parse(storedItems) : []);
+
       fetchData();
     }
   }, []);
+
+  // Function to toggle the favorite status of an item
+  const toggleFavorite = (postId: string) => {
+    const updatedFavorites = [...(favoriteItems as any)];
+    const itemIndex = updatedFavorites.indexOf(postId);
+
+    if (itemIndex === -1) {
+      updatedFavorites.push(postId);
+    } else {
+      updatedFavorites.splice(itemIndex, 1);
+    }
+
+    // Update the favorite items in state and localStorage
+    setFavoriteItems(updatedFavorites as any);
+    localStorage.setItem(localStorageKey, JSON.stringify(updatedFavorites));
+  };
+
+  // Function to check if an item is in the favorite list
+  const isFavorite = (postId: string) => (favoriteItems ?? []).includes(postId);
+
+  // Dynamic buttons based on wishlist status
+  const renderWishlistButtons = (item: any) => {
+    const isItemInWishlist = isFavorite(item.id);
+
+    return (
+      <button
+        onClick={() => toggleFavorite(item.id)}
+        className='focus:outline-none'
+      >
+        {isItemInWishlist ? (
+          <BlueHeartIcon onClick={() => {}} />
+        ) : (
+          <GrayHeartIcon onClick={() => {}} />
+        )}
+      </button>
+    );
+  };
 
   if (!user || !posts) {
     return <div>Loading...</div>;
@@ -126,11 +168,7 @@ const UserAccount = () => {
                     >
                       <FaDownload />
                     </button>
-                    {isWishlist ? (
-                      <BlueHeartIcon onClick={toggleHeartClick} />
-                    ) : (
-                      <GrayHeartIcon onClick={toggleHeartClick} />
-                    )}
+                    {renderWishlistButtons(post)}
                   </div>
                 </div>
               </div>
