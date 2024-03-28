@@ -107,7 +107,7 @@ async function fetchPosts(
       isAdminRequest,
       authorId,
       language,
-      offset + promotedPosts.length,
+      offset + (wishlist ? 0 : promotedPosts.length),
       POSTS_PER_PAGE - promotedPosts.length
     );
   }
