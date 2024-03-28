@@ -208,14 +208,22 @@ async function fetchNonPromotedPosts(
     }),
     ...(genre && { genre }),
     ...(gender && { gender }),
-    ...(search && {
+    ...(language && { language }),
+    OR: [
+      { promotion: null }, // Include posts without any associated promotion
+      { promotion: { promoted: false } }, // Include posts with promotion set to false
+    ],
+  };
+
+  // If search is provided, add it to the OR condition
+  if (search) {
+    whereClause.AND = {
       OR: [
         { title: { contains: search, mode: 'insensitive' } },
         { content: { contains: search, mode: 'insensitive' } },
       ],
-    }),
-    ...(language && { language }),
-  };
+    };
+  }
 
   // Fetch non-promoted posts
   return await prisma.post.findMany({
